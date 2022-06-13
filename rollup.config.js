@@ -39,7 +39,7 @@ const config = [
   // dist umd
   merge(umdOutput, { output: { file: pkg.main } }),
   // docs umd with no types
-  merge(umdOutput, {  output: { file: 'docs/ifvisible.js' } }),
+  merge(umdOutput, {  output: { file: 'docs/index.js' } }),
   // dist es
   {
     input,

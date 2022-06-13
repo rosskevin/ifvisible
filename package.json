@@ -2,14 +2,14 @@
   "name": "ifvisible.js",
   "version": "3.0.0",
   "description": "Crossbrowser & lightweight way to check if user is looking at the page or interacting with it. (wrapper around HTML5 visibility api)",
-  "main": "dist/umd/ifvisible.js",
+  "main": "dist/umd/index.js",
   "module": "./dist/es/index.js",
   "types": "./dist/es/index.d.ts",
   "scripts": {
     "bundle": "run-s clean && rollup --config rollup.config.js",
     "start": "run-s clean && rollup --watch --config rollup.config.js",
     "b": "tsc -b --noEmit",
-    "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/ifvisible.*",
+    "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js*",
     "lint": "eslint --ext .js,.ts ./src",
     "docs": "docco src/*.ts --output docs/docco",
     "release": "run-p build docs publish"
