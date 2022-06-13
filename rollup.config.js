@@ -15,14 +15,10 @@ const tsconfig = path.join(__dirname, 'tsconfig.json');
 // treat as externals not relative and not absolute paths
 const external = id => !id.startsWith('.') && !id.startsWith('/');
 
-const input = './src/ifvisible.ts';
+const input = './src/index.ts';
 const extensions = ['.ts', '.tsx'];
 const tsconfigOverride = { compilerOptions: {} };
-
-const commonPlugins = [
-  nodeResolve({ extensions }),
-  typescriptPlugin({ typescript, tsconfig, tsconfigOverride }),
-];
+const tsconfigOverrideNoTypes = { compilerOptions: { declaration: false } } ;
 
 const umdOutput =   {
   input,
@@ -33,14 +29,17 @@ const umdOutput =   {
     name: 'ifvisible.js',
     sourcemap: true,
   },
-  plugins: [...commonPlugins],
+  plugins: [
+    nodeResolve({ extensions }),
+    typescriptPlugin({ typescript, tsconfig, tsconfigOverride: tsconfigOverrideNoTypes }),
+  ],
 };
 
 const config = [
   // dist umd
   merge(umdOutput, { output: { file: pkg.main } }),
-  // docs umd
-  merge(umdOutput, { output: { file: 'docs/ifvisible.js' } }),
+  // docs umd with no types
+  merge(umdOutput, {  output: { file: 'docs/ifvisible.js' } }),
   // dist es
   {
     input,
@@ -50,7 +49,10 @@ const config = [
       format: 'es',
       sourcemap: true,
     },
-    plugins: [...commonPlugins],
+    plugins: [  
+      nodeResolve({ extensions }),
+      typescriptPlugin({ typescript, tsconfig, tsconfigOverride }),
+    ],
   },
 ];
 

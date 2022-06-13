@@ -3,8 +3,8 @@
   "version": "3.0.0",
   "description": "Crossbrowser & lightweight way to check if user is looking at the page or interacting with it. (wrapper around HTML5 visibility api)",
   "main": "dist/umd/ifvisible.js",
-  "module": "./dist/es/ifvisible.js",
-  "types": "./dist/es/ifvisible.d.ts",
+  "module": "./dist/es/index.js",
+  "types": "./dist/es/index.d.ts",
   "scripts": {
     "bundle": "run-s clean && rollup --config rollup.config.js",
     "start": "run-s clean && rollup --watch --config rollup.config.js",

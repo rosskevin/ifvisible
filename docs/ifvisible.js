@@ -302,11 +302,13 @@
       }
   }
 
-  exports.IE = IE;
-  exports.IfVisible = IfVisible;
-  exports.STATUS_ACTIVE = STATUS_ACTIVE;
-  exports.STATUS_HIDDEN = STATUS_HIDDEN;
-  exports.STATUS_IDLE = STATUS_IDLE;
+  // decide between self vs global depending on the environment
+  const root = (typeof self === 'object' && self.self === self && self)
+      || (typeof global === 'object' && global.global === global && global);
+  //  || this;
+  const ifvisible = new IfVisible(root, document);
+
+  exports.ifvisible = ifvisible;
 
   Object.defineProperty(exports, '__esModule', { value: true });
 
