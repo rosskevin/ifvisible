@@ -305,7 +305,12 @@
   const root = (typeof self === 'object' && self.self === self && self)
       || (typeof global === 'object' && global.global === global && global);
   //  || this;
+  // set library singleton
   const ifvisible = new IfVisible(root, document);
+  // set window singleton
+  if (root) {
+      root.ifvisible = ifvisible;
+  }
 
   exports.ifvisible = ifvisible;
 
