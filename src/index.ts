@@ -1,4 +1,4 @@
-import { IfVisible } from './ifvisible1';
+import { IfVisible } from './IfVisible';
 
 declare let global: any;
 // decide between self vs global depending on the environment

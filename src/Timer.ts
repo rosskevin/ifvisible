@@ -1,4 +1,4 @@
-import { IfVisible, STATUS_ACTIVE } from './ifvisible1';
+import { IfVisible, STATUS_ACTIVE } from './IfVisible';
 
 export default class Timer {
   private token: number;
