@@ -13,3 +13,5 @@ Session.vim
 *.log
 
 .sublime-*
+
+dist
