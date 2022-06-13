@@ -1,5 +1,4 @@
 import { Events } from './Events';
-import Timer from './Timer';
 
 export const STATUS_ACTIVE = 'active';
 export const STATUS_IDLE = 'idle';
@@ -30,6 +29,47 @@ export const IE = (function () {
 
   return v > 4 ? v : undef;
 }());
+
+class Timer {
+  private token: number;
+
+  stopped: boolean = false;
+
+  constructor (private ifvisible: IfVisible,
+    private seconds: number,
+    private callback: Function) {
+    this.start();
+
+    this.ifvisible.on('statusChanged', (data: any) => {
+      if (this.stopped === false) {
+        if (data.status === STATUS_ACTIVE) {
+          this.start();
+        } else {
+          this.pause();
+        }
+      }
+    });
+  }
+
+  private start () {
+    this.stopped = false;
+    clearInterval(this.token);
+    this.token = setInterval(this.callback, this.seconds * 1000);
+  }
+
+  stop () {
+    this.stopped = true;
+    clearInterval(this.token);
+  }
+
+  resume () {
+    this.start();
+  }
+
+  pause () {
+    this.stop();
+  }
+}
 
 export class IfVisible {
   status: string = STATUS_ACTIVE;

@@ -59,6 +59,25 @@
   })(Events || (Events = {}));
   // export default Events;
 
+  const STATUS_ACTIVE = 'active';
+  const STATUS_IDLE = 'idle';
+  const STATUS_HIDDEN = 'hidden';
+  let DOC_HIDDEN;
+  let VISIBILITY_CHANGE_EVENT;
+  // eslint-disable-next-line func-names
+  const IE = (function () {
+      let undef;
+      let v = 3;
+      const div = document.createElement('div');
+      const all = div.getElementsByTagName('i');
+      // eslint-disable-next-line no-cond-assign
+      while (
+      // eslint-disable-next-line no-plusplus, no-sequences
+      div.innerHTML = `<!--[if gt IE ${++v}]><i></i><![endif]-->`,
+          all[0])
+          ;
+      return v > 4 ? v : undef;
+  }());
   class Timer {
       ifvisible;
       seconds;
@@ -97,26 +116,6 @@
           this.stop();
       }
   }
-
-  const STATUS_ACTIVE = 'active';
-  const STATUS_IDLE = 'idle';
-  const STATUS_HIDDEN = 'hidden';
-  let DOC_HIDDEN;
-  let VISIBILITY_CHANGE_EVENT;
-  // eslint-disable-next-line func-names
-  const IE = (function () {
-      let undef;
-      let v = 3;
-      const div = document.createElement('div');
-      const all = div.getElementsByTagName('i');
-      // eslint-disable-next-line no-cond-assign
-      while (
-      // eslint-disable-next-line no-plusplus, no-sequences
-      div.innerHTML = `<!--[if gt IE ${++v}]><i></i><![endif]-->`,
-          all[0])
-          ;
-      return v > 4 ? v : undef;
-  }());
   class IfVisible {
       root;
       doc;
