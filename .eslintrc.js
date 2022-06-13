@@ -1,8 +1,11 @@
 module.exports = {
   // extends: 'airbnb-base',
   parser: '@typescript-eslint/parser',
-  plugins: ['@typescript-eslint'],
+  plugins: ['@typescript-eslint', 'import'],
   extends: ['airbnb-typescript/base'],
+  parserOptions: {
+    project: "./tsconfig.json"
+  },
   rules: {
     'import/no-cycle': 0,
     'no-inner-declarations': 0,
@@ -51,11 +54,8 @@ module.exports = {
     "@typescript-eslint/indent": ["error", 2],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
-    "@typescript-eslint/interface-name-prefix": ["error", "always"],
     "@typescript-eslint/no-var-requires": "off",
-    "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: 'no-public' } ]
-  },
-  parserOptions: {
-    project: "./tsconfig.json"
+    "@typescript-eslint/explicit-member-accessibility": ["error", { accessibility: 'no-public' } ],
+    "@typescript-eslint/space-before-function-paren": "off"
   },
 };

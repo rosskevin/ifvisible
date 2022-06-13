@@ -4,7 +4,6 @@ import Timer from './Timer';
 export const STATUS_ACTIVE = 'active';
 export const STATUS_IDLE = 'idle';
 export const STATUS_HIDDEN = 'hidden';
-// declare var __VERSION__: string;
 let DOC_HIDDEN: string;
 let VISIBILITY_CHANGE_EVENT: string;
 
@@ -35,9 +34,7 @@ export const IE = (function () {
 export class IfVisible {
   status: string = STATUS_ACTIVE;
 
-  VERSION = '2.0.11';
-
-  private timers: number[] = [];
+  private timers: NodeJS.Timeout[] = [];
 
   private idleTime: number = 30000;
 
