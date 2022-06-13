@@ -182,7 +182,6 @@
       }
       startIdleTimer(event) {
           // Prevents Phantom events.
-          // @see https://github.com/serkanyersen/ifvisible.js/pull/37
           if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
               return;
           }
@@ -304,10 +303,9 @@
   // decide between self vs global depending on the environment
   const root = (typeof self === 'object' && self.self === self && self)
       || (typeof global === 'object' && global.global === global && global);
-  //  || this;
   // set library singleton
   const ifvisible = new IfVisible(root, document);
-  // set window singleton
+  // set window singleton (e.g. window.ifvisible)
   if (root) {
       root.ifvisible = ifvisible;
   }

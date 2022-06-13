@@ -1,29 +1,18 @@
-ifvisible.js
+@rosskevin/ifvisible
 ------------
 
 Crossbrowser & lightweight way to check if user is looking at the page or interacting with it.
 
-#### Check out the [Demo](http://serkanyersen.github.com/ifvisible.js/demo.html) or read below for code example or Check [Annotated Source](http://serkanyersen.github.com/ifvisible.js/docs/ifvisible.html)
+#### Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read below for code example or Check [Annotated Source](http://rosskevin.github.com/ifvisible/docs/ifvisible.html)
 
 
 ## Installation
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fserkanyersen%2Fifvisible.js.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fserkanyersen%2Fifvisible.js?ref=badge_shield)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js?ref=badge_shield)
 
 From npm
 ```
-npm install ifvisible.js --save
+npm install @rosskevin/ifvisible --save
 ```
-
-From Bower
-```
-bower install ifvisible.js
-```
-
-For Meteor
-```
-mrt add ifvisible
-```
-> meteor package is provided by [@frozeman](https://github.com/frozeman/meteor-ifvisible.js) via [Atmosphere](https://atmosphere.meteor.com/package/ifvisible)
 
 ## Examples
 
@@ -65,7 +54,7 @@ ifvisible.on("focus", function(){
 
 ```
 
-ifvisible.js can handle activity states too, such as being IDLE or ACTIVE on the page
+ifvisible can handle activity states too, such as being IDLE or ACTIVE on the page
 
 ```javascript
 
@@ -121,7 +110,7 @@ ifvisible.off('focus');
 
 ```
 
-You can set your smart intervals with ifvisible.js, if user is IDLE or not seeing the page the interval will automatically stop itself
+You can set your smart intervals with ifvisible, if user is IDLE or not seeing the page the interval will automatically stop itself
 
 ```javascript
 
@@ -135,7 +124,7 @@ ifvisible.onEvery(0.5, function(){
 ```
 
 ### License
-It's MIT, Go crazy.
+MIT.
 
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fserkanyersen%2Fifvisible.js.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fserkanyersen%2Fifvisible.js?ref=badge_large)
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js?ref=badge_large)

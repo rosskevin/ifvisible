@@ -26,7 +26,7 @@ const umdOutput =   {
   output: {
     file: pkg.main,
     format: 'umd',
-    name: 'ifvisible.js',
+    name: 'ifvisible',
     sourcemap: true,
   },
   plugins: [

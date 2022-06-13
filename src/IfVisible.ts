@@ -140,7 +140,6 @@ export class IfVisible {
 
   startIdleTimer (event?: Event) {
     // Prevents Phantom events.
-    // @see https://github.com/serkanyersen/ifvisible.js/pull/37
     if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
       return;
     }
