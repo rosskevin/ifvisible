@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
 /* eslint-disable @typescript-eslint/ban-types */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+
 import { EventBus } from './EventBus'
 import { getIEVersion } from './util'
 
@@ -21,16 +21,20 @@ export interface IIdleInfo {
   timeLeftPer: number
 }
 
-class Timer {
+class Timer<
+  K extends keyof HTMLElementEventMap,
+  C extends (this: HTMLElement, ev: HTMLElementEventMap[K]) => any,
+> {
   private id: NodeJS.Timeout | string | number | undefined // NodeJS.Timer
   private stopped: boolean
   private ifvInstance: IfVisible
   private seconds: number
-  private callback: Function
+  private callback: C
 
-  constructor(ifvInstance: IfVisible, seconds: number, callback: Function) {
+  constructor(ifvInstance: IfVisible, seconds: number, callback: C) {
     this.ifvInstance = ifvInstance
     this.seconds = seconds
+    this.callback = callback
     this.stopped = false
     this.start()
 
@@ -69,18 +73,19 @@ export class IfVisible {
   private status: Status = 'active'
   private timers: NodeJS.Timeout[] = []
   private idleTime = 30000
-  private idleStartedTime: number
+  private idleStartedTime?: number
   private isLegacyModeOn = false
-  private root: any
+  private win: Window
   private doc: Document
   private eventBus: EventBus
-  private docHidden: DocHidden
-  private visibilityChangeEvent: VisiblityChange
+  private docHidden?: DocHidden
+  private visibilityChangeEvent?: VisiblityChange
 
-  constructor(root: any /*Window*/, doc: Document) {
-    this.root = root
+  constructor(win: Window, doc: Document) {
+    this.win = win
     this.doc = doc
     this.eventBus = new EventBus()
+    this.docHidden = undefined
 
     // Find correct browser events
     if (this.doc.hidden !== undefined) {
@@ -101,7 +106,7 @@ export class IfVisible {
       this.legacyMode()
     } else {
       const trackChange = () => {
-        if (this.doc[this.docHidden]) {
+        if (this.doc[this.docHidden as DocHidden]) {
           this.blur()
         } else {
           this.focus()
@@ -120,18 +125,18 @@ export class IfVisible {
       return
     }
 
-    let BLUR_EVENT = 'blur'
+    let blurEvent: keyof DocumentEventMap = 'blur'
     const FOCUS_EVENT = 'focus'
 
     if (ieVersion < 9) {
-      BLUR_EVENT = 'focusout'
+      blurEvent = 'focusout'
     }
 
-    this.eventBus.dom(this.root, BLUR_EVENT, () => {
+    this.eventBus.dom(this.win, blurEvent, () => {
       return this.blur()
     })
 
-    this.eventBus.dom(this.root, FOCUS_EVENT, () => {
+    this.eventBus.dom(this.win, FOCUS_EVENT, () => {
       return this.focus()
     })
 
@@ -167,7 +172,7 @@ export class IfVisible {
     this.eventBus.dom(this.doc, 'mousedown', this.startIdleTimer.bind(this))
     this.eventBus.dom(this.doc, 'keyup', this.startIdleTimer.bind(this))
     this.eventBus.dom(this.doc, 'touchstart', this.startIdleTimer.bind(this))
-    this.eventBus.dom(this.root, 'scroll', this.startIdleTimer.bind(this))
+    this.eventBus.dom(this.win, 'scroll', this.startIdleTimer.bind(this))
     // When page is focus without any event, it should not be idle.
     this.focus(this.startIdleTimer.bind(this))
   }
