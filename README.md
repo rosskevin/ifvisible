@@ -6,8 +6,6 @@ Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read be
 
 ## Installation
 
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js?ref=badge_shield)
-
 From npm
 
 ```
@@ -20,6 +18,21 @@ yarn install @rosskevin/ifvisible
 
 ## Examples
 
+### Instantiation
+
+This library provides a singleton exposed as `ifvisible` by default, but for more advancecd users, they can import the class directly for a different attachment.
+
+```js
+// import singleton bound to the Window
+import ifvisible from '@rosskevin/ifvisible'
+
+// import the object and instantiate it yourself
+import { IfVisible } from '@rosskevin/ifvisible'
+window.ifvisible = new IfVisible(window, document)
+```
+
+### General
+
 ```javascript
 // If page is visible right now
 if (ifvisible.now()) {
@@ -27,8 +40,7 @@ if (ifvisible.now()) {
   openPopUp()
 }
 
-// You can also check the page status
-// using `now` method
+// You can also check the page status using `now` method
 if (!ifvisible.now('hidden')) {
   // Display pop-up if page is not hidden
   openPopUp()
@@ -40,7 +52,7 @@ if (!ifvisible.now('hidden')) {
 // active: page is visible and user is active
 ```
 
-Handle tab switch or browser minimize states
+### Handle tab switch or browser minimize states
 
 ```javascript
 ifvisible.on('blur', function () {
@@ -54,7 +66,9 @@ ifvisible.on('focus', function () {
 })
 ```
 
-ifvisible can handle activity states too, such as being IDLE or ACTIVE on the page
+### `on`
+
+Listen for activity events such `idle` or `active`
 
 ```javascript
 ifvisible.on('idle', function () {
@@ -68,13 +82,15 @@ ifvisible.on('wakeup', function () {
 })
 ```
 
+### `setIdleDuration`
+
 Default idle duration is 60 seconds but you can change it with `setIdleDuration` method
 
 ```javascript
 ifvisible.setIdleDuration(120) // Page will become idle after 120 seconds
 ```
 
-You can manually trigger status events by calling them directly or you can set events with their names by giving first argument as a callback
+### Manually trigger status events
 
 ```javascript
 ifvisible.idle() // will put page in a idle status
@@ -91,7 +107,7 @@ ifvisible.focus() // Will trigger wakeup event as well
 ifvisible.wakeup()
 ```
 
-You can use ifvisible.off() to remove event triggers:
+### `ifvisible.off()` to remove event triggers:
 
 ```javascript
 ifvisible.off('idle', triggeredFunction) // will remove only triggeredFunction from being tiggered on idle
@@ -103,7 +119,9 @@ ifvisible.off('wakeup')
 ifvisible.off('focus')
 ```
 
-You can set your smart intervals with ifvisible, if user is IDLE or not seeing the page the interval will automatically stop itself
+### `ifvisible.onEvery` to set smart intervals
+
+Only animate a logo if the page is visible.
 
 ```javascript
 // If page is visible run this function on every half seconds
@@ -113,12 +131,29 @@ ifvisible.onEvery(0.5, function () {
 })
 ```
 
-## Browser support
+## Browsers
 
-While support for IE was not explicitly removed, there are no guarantees for support as we don't test with it. PRs regarding deep legacy support will be considered, but if it gets too complicated, they may not be accepted. Given Microsoft discontinued IE (not edge) altogether, moving forward is in the best interest of maintenance.
+This library is intended to support _modern_ browsers. Legacy IE (not IE edge) support was dropped to clean up code. Given Microsoft discontinued IE (not edge) altogether, moving forward is in the best interest of maintenance. If you need legacy support, look towards the [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js)
+
+## Why fork?
+
+The previous library was:
+
+- languishing with no updates
+- old build system
+- outdated dev depencies
+- used typescript but was not strongly typed
+- did not publish the typescript types (even though it was written in typescript)
+- burdened with legacy code everywhere
+- only a UMD module available.
+
+In contrast this version:
+
+- targets modern browsers only
+- is strongly typed
+- publishes UMD and ES bundles (will publish ESM as that comes to pass as well)
+- is fully updated and maintained
 
 ## License
 
 MIT.
-
-[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Frosskevin%2Fifvisible.js?ref=badge_large)

@@ -1,20 +1,11 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { IfVisible } from './IfVisible'
 
-declare let global: any
-// decide between self vs global depending on the environment
-const root =
-  (typeof self === 'object' && self.self === self && self) ||
-  (typeof global === 'object' && global.global === global && global)
+// set library singleton and export for direct use
+export const ifvisible = new IfVisible(window, document)
 
-// set library singleton
-export const ifvisible = new IfVisible(root, document)
-
-// set window singleton (e.g. window.ifvisible)
-if (root) {
-  ;(root as any).ifvisible = ifvisible
-}
+// set window singleton (e.g. window.ifvisible) to the same instance
+;(window as any).ifvisible = ifvisible
 
 export * from './EventBus'
 export * from './IfVisible'
