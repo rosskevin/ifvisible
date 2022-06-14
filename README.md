@@ -8,7 +8,7 @@ Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read be
 
 From npm
 
-```
+```sh
 npm install @rosskevin/ifvisible
 
 # or
@@ -23,9 +23,13 @@ yarn install @rosskevin/ifvisible
 This library provides a singleton exposed as `ifvisible` by default, but for more advancecd users, they can import the class directly for a different attachment.
 
 ```js
-// import singleton bound to the Window
+// import singleton global bound to the `window`
 import ifvisible from '@rosskevin/ifvisible'
+```
 
+or for more advanced usage for use cases that a singleton may not be useful, you may instantiate it directly:
+
+```js
 // import the object and instantiate it yourself
 import { IfVisible } from '@rosskevin/ifvisible'
 window.ifvisible = new IfVisible(window, document)
@@ -33,7 +37,7 @@ window.ifvisible = new IfVisible(window, document)
 
 ### General
 
-```javascript
+```js
 // If page is visible right now
 if (ifvisible.now()) {
   // Display pop-up
@@ -54,7 +58,7 @@ if (!ifvisible.now('hidden')) {
 
 ### Handle tab switch or browser minimize states
 
-```javascript
+```js
 ifvisible.on('blur', function () {
   // example code here..
   animations.pause()
@@ -70,7 +74,7 @@ ifvisible.on('focus', function () {
 
 Listen for activity events such `idle` or `active`
 
-```javascript
+```js
 ifvisible.on('idle', function () {
   // Stop auto updating the live data
   stream.pause()
@@ -86,13 +90,13 @@ ifvisible.on('wakeup', function () {
 
 Default idle duration is 60 seconds but you can change it with `setIdleDuration` method
 
-```javascript
+```js
 ifvisible.setIdleDuration(120) // Page will become idle after 120 seconds
 ```
 
 ### Manually trigger status events
 
-```javascript
+```js
 ifvisible.idle() // will put page in a idle status
 
 ifvisible.idle(function () {
@@ -109,7 +113,7 @@ ifvisible.wakeup()
 
 ### `ifvisible.off()` to remove event triggers:
 
-```javascript
+```js
 ifvisible.off('idle', triggeredFunction) // will remove only triggeredFunction from being tiggered on idle
 ifvisible.off('idle') // will remove all events triggered on idle
 
@@ -123,7 +127,7 @@ ifvisible.off('focus')
 
 Only animate a logo if the page is visible.
 
-```javascript
+```js
 // If page is visible run this function on every half seconds
 ifvisible.onEvery(0.5, function () {
   // Do an animation on the logo only when page is visible
@@ -133,7 +137,7 @@ ifvisible.onEvery(0.5, function () {
 
 ## Browsers
 
-This library is intended to support _modern_ browsers. Legacy IE (not IE edge) support was dropped to clean up code. Given Microsoft discontinued IE (not edge) altogether, moving forward is in the best interest of maintenance. If you need legacy support, look towards the [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js)
+This library is intended to support _modern_ browsers. Legacy IE support (not Edge) was dropped to clean up code. Given Microsoft discontinued IE altogether, moving forward is in the best interest of maintenance. If you need legacy support, look towards the [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js)
 
 ## Why fork?
 
