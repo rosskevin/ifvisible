@@ -1,10 +1,18 @@
-import { Events } from './Events'
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/ban-types */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
+import { EventBus } from './EventBus'
+import { getIEVersion } from './util'
 
-export const STATUS_ACTIVE = 'active'
-export const STATUS_IDLE = 'idle'
-export const STATUS_HIDDEN = 'hidden'
-let DOC_HIDDEN: string
-let VISIBILITY_CHANGE_EVENT: string
+export type Status = 'active' | 'idle' | 'hidden'
+export type DocHidden = 'hidden' | 'mozHidden' | 'msHidden' | 'webkitHidden'
+export type VisiblityChange =
+  | 'visibilitychange'
+  | 'mozvisibilitychange'
+  | 'msvisibilitychange'
+  | 'webkitvisibilitychange'
+
+const ieVersion = getIEVersion()
 
 export interface IIdleInfo {
   isIdle: boolean
@@ -13,28 +21,22 @@ export interface IIdleInfo {
   timeLeftPer: number
 }
 
-export const IE = (function () {
-  let undef
-  let v = 3
-  const div = document.createElement('div')
-  const all = div.getElementsByTagName('i')
-
-  while (((div.innerHTML = `<!--[if gt IE ${++v}]><i></i><![endif]-->`), all[0]));
-
-  return v > 4 ? v : undef
-})()
-
 class Timer {
-  private token: number
+  private id: NodeJS.Timeout | string | number | undefined // NodeJS.Timer
+  private stopped: boolean
+  private ifvInstance: IfVisible
+  private seconds: number
+  private callback: Function
 
-  stopped = false
-
-  constructor(private ifvisible: IfVisible, private seconds: number, private callback: Function) {
+  constructor(ifvInstance: IfVisible, seconds: number, callback: Function) {
+    this.ifvInstance = ifvInstance
+    this.seconds = seconds
+    this.stopped = false
     this.start()
 
-    this.ifvisible.on('statusChanged', (data: any) => {
+    this.ifvInstance.on('statusChanged', (data) => {
       if (this.stopped === false) {
-        if (data.status === STATUS_ACTIVE) {
+        if (data.status === 'active') {
           this.start()
         } else {
           this.pause()
@@ -43,71 +45,76 @@ class Timer {
     })
   }
 
-  private start() {
-    this.stopped = false
-    clearInterval(this.token)
-    this.token = setInterval(this.callback, this.seconds * 1000)
-  }
-
-  stop() {
+  public stop() {
     this.stopped = true
-    clearInterval(this.token)
+    clearInterval(this.id)
   }
 
-  resume() {
+  public resume() {
     this.start()
   }
 
-  pause() {
+  public pause() {
     this.stop()
+  }
+
+  private start() {
+    this.stopped = false
+    clearInterval(this.id)
+    this.id = setInterval(this.callback, this.seconds * 1000)
   }
 }
 
 export class IfVisible {
-  status: string = STATUS_ACTIVE
-
+  private status: Status = 'active'
   private timers: NodeJS.Timeout[] = []
-
   private idleTime = 30000
-
   private idleStartedTime: number
-
   private isLegacyModeOn = false
+  private root: any
+  private doc: Document
+  private eventBus: EventBus
+  private docHidden: DocHidden
+  private visibilityChangeEvent: VisiblityChange
 
-  constructor(private root, private doc) {
+  constructor(root: any /*Window*/, doc: Document) {
+    this.root = root
+    this.doc = doc
+    this.eventBus = new EventBus()
+
     // Find correct browser events
     if (this.doc.hidden !== undefined) {
-      DOC_HIDDEN = 'hidden'
-      VISIBILITY_CHANGE_EVENT = 'visibilitychange'
-    } else if (this.doc.mozHidden !== undefined) {
-      DOC_HIDDEN = 'mozHidden'
-      VISIBILITY_CHANGE_EVENT = 'mozvisibilitychange'
-    } else if (this.doc.msHidden !== undefined) {
-      DOC_HIDDEN = 'msHidden'
-      VISIBILITY_CHANGE_EVENT = 'msvisibilitychange'
-    } else if (this.doc.webkitHidden !== undefined) {
-      DOC_HIDDEN = 'webkitHidden'
-      VISIBILITY_CHANGE_EVENT = 'webkitvisibilitychange'
+      this.docHidden = 'hidden'
+      this.visibilityChangeEvent = 'visibilitychange'
+    } else if ((this.doc as any).mozHidden !== undefined) {
+      this.docHidden = 'mozHidden'
+      this.visibilityChangeEvent = 'mozvisibilitychange'
+    } else if ((this.doc as any).msHidden !== undefined) {
+      this.docHidden = 'msHidden'
+      this.visibilityChangeEvent = 'msvisibilitychange'
+    } else if ((this.doc as any).webkitHidden !== undefined) {
+      this.docHidden = 'webkitHidden'
+      this.visibilityChangeEvent = 'webkitvisibilitychange'
     }
 
-    if (DOC_HIDDEN === undefined) {
+    if (this.docHidden === undefined) {
       this.legacyMode()
     } else {
       const trackChange = () => {
-        if (this.doc[DOC_HIDDEN]) {
+        if (this.doc[this.docHidden]) {
           this.blur()
         } else {
           this.focus()
         }
       }
       trackChange() // get initial status
-      Events.dom(this.doc, VISIBILITY_CHANGE_EVENT, trackChange)
+      this.eventBus.dom(this.doc, this.visibilityChangeEvent, trackChange)
     }
     this.startIdleTimer()
     this.trackIdleStatus()
   }
 
-  legacyMode() {
+  public legacyMode() {
     // it's already on
     if (this.isLegacyModeOn) {
       return
@@ -116,22 +123,22 @@ export class IfVisible {
     let BLUR_EVENT = 'blur'
     const FOCUS_EVENT = 'focus'
 
-    if (IE < 9) {
+    if (ieVersion < 9) {
       BLUR_EVENT = 'focusout'
     }
 
-    Events.dom(this.root, BLUR_EVENT, () => {
+    this.eventBus.dom(this.root, BLUR_EVENT, () => {
       return this.blur()
     })
 
-    Events.dom(this.root, FOCUS_EVENT, () => {
+    this.eventBus.dom(this.root, FOCUS_EVENT, () => {
       return this.focus()
     })
 
     this.isLegacyModeOn = true
   }
 
-  startIdleTimer(event?: Event) {
+  public startIdleTimer(event?: Event) {
     // Prevents Phantom events.
     if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
       return
@@ -140,7 +147,7 @@ export class IfVisible {
     this.timers.map(clearTimeout)
     this.timers.length = 0 // clear the array
 
-    if (this.status === STATUS_IDLE) {
+    if (this.status === 'idle') {
       this.wakeup()
     }
 
@@ -148,47 +155,47 @@ export class IfVisible {
 
     this.timers.push(
       setTimeout(() => {
-        if (this.status === STATUS_ACTIVE || this.status === STATUS_HIDDEN) {
+        if (this.status === 'active' || this.status === 'hidden') {
           return this.idle()
         }
       }, this.idleTime),
     )
   }
 
-  trackIdleStatus() {
-    Events.dom(this.doc, 'mousemove', this.startIdleTimer.bind(this))
-    Events.dom(this.doc, 'mousedown', this.startIdleTimer.bind(this))
-    Events.dom(this.doc, 'keyup', this.startIdleTimer.bind(this))
-    Events.dom(this.doc, 'touchstart', this.startIdleTimer.bind(this))
-    Events.dom(this.root, 'scroll', this.startIdleTimer.bind(this))
+  public trackIdleStatus() {
+    this.eventBus.dom(this.doc, 'mousemove', this.startIdleTimer.bind(this))
+    this.eventBus.dom(this.doc, 'mousedown', this.startIdleTimer.bind(this))
+    this.eventBus.dom(this.doc, 'keyup', this.startIdleTimer.bind(this))
+    this.eventBus.dom(this.doc, 'touchstart', this.startIdleTimer.bind(this))
+    this.eventBus.dom(this.root, 'scroll', this.startIdleTimer.bind(this))
     // When page is focus without any event, it should not be idle.
     this.focus(this.startIdleTimer.bind(this))
   }
 
-  on(event: string, callback: (data: any) => any): IfVisible {
-    Events.attach(event, callback)
+  public on(event: string, callback: (data: any) => any): IfVisible {
+    this.eventBus.attach(event, callback)
     return this
   }
 
-  off(event: string, callback?: any): IfVisible {
-    Events.remove(event, callback)
+  public off(event: string, callback?: any): IfVisible {
+    this.eventBus.remove(event, callback)
     return this
   }
 
-  setIdleDuration(seconds: number): IfVisible {
+  public setIdleDuration(seconds: number): IfVisible {
     this.idleTime = seconds * 1000
     this.startIdleTimer()
     return this
   }
 
-  getIdleDuration(): number {
+  public getIdleDuration(): number {
     return this.idleTime
   }
 
-  getIdleInfo(): IIdleInfo {
+  public getIdleInfo(): IIdleInfo {
     const now = +new Date()
     let res: IIdleInfo
-    if (this.status === STATUS_IDLE) {
+    if (this.status === 'idle') {
       res = {
         isIdle: true,
         idleFor: now - this.idleStartedTime,
@@ -207,59 +214,59 @@ export class IfVisible {
     return res
   }
 
-  idle(callback?: (data: any) => any): IfVisible {
+  public idle(callback?: (data: any) => any): IfVisible {
     if (callback) {
       this.on('idle', callback)
     } else {
-      this.status = STATUS_IDLE
-      Events.fire('idle')
-      Events.fire('statusChanged', [{ status: this.status }])
+      this.status = 'idle'
+      this.eventBus.fire('idle')
+      this.eventBus.fire('statusChanged', [{ status: this.status }])
     }
     return this
   }
 
-  blur(callback?: (data: any) => any): IfVisible {
+  public blur(callback?: (data: any) => any): IfVisible {
     if (callback) {
       this.on('blur', callback)
     } else {
-      this.status = STATUS_HIDDEN
-      Events.fire('blur')
-      Events.fire('statusChanged', [{ status: this.status }])
+      this.status = 'hidden'
+      this.eventBus.fire('blur')
+      this.eventBus.fire('statusChanged', [{ status: this.status }])
     }
     return this
   }
 
-  focus(callback?: (data: any) => any): IfVisible {
+  public focus(callback?: (data: any) => any): IfVisible {
     if (callback) {
       this.on('focus', callback)
-    } else if (this.status !== STATUS_ACTIVE) {
-      this.status = STATUS_ACTIVE
-      Events.fire('focus')
-      Events.fire('wakeup')
-      Events.fire('statusChanged', [{ status: this.status }])
+    } else if (this.status !== 'active') {
+      this.status = 'active'
+      this.eventBus.fire('focus')
+      this.eventBus.fire('wakeup')
+      this.eventBus.fire('statusChanged', [{ status: this.status }])
     }
     return this
   }
 
-  wakeup(callback?: (data: any) => any): IfVisible {
+  public wakeup(callback?: (data: any) => any): IfVisible {
     if (callback) {
       this.on('wakeup', callback)
-    } else if (this.status !== STATUS_ACTIVE) {
-      this.status = STATUS_ACTIVE
-      Events.fire('wakeup')
-      Events.fire('statusChanged', [{ status: this.status }])
+    } else if (this.status !== 'active') {
+      this.status = 'active'
+      this.eventBus.fire('wakeup')
+      this.eventBus.fire('statusChanged', [{ status: this.status }])
     }
     return this
   }
 
-  onEvery(seconds: number, callback: Function): Timer {
+  public onEvery(seconds: number, callback: Function): Timer {
     return new Timer(this, seconds, callback)
   }
 
-  now(check?: string): boolean {
+  public now(check?: string): boolean {
     if (check !== undefined) {
       return this.status === check
     }
-    return this.status === STATUS_ACTIVE
+    return this.status === 'active'
   }
 }

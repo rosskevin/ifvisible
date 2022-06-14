@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-unsafe-member-access */
+/* eslint-disable @typescript-eslint/no-unsafe-assignment */
 import { IfVisible } from './IfVisible'
 
 declare let global: any
@@ -13,3 +15,6 @@ export const ifvisible = new IfVisible(root, document)
 if (root) {
   ;(root as any).ifvisible = ifvisible
 }
+
+export * from './EventBus'
+export * from './IfVisible'

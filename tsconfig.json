@@ -1,23 +1,43 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
+
+  "display": "React shared base",
+  "extends": "@tsconfig/create-react-app/tsconfig.json",
+
   "compilerOptions": {
+    "outDir": "dist/es",
+    "rootDir": "src",
+
+    // All packages should be ES, only the umd bundle will differ (see rollup)
     "target": "esnext",
     "module": "esnext",
     "moduleResolution": "node",
-    "sourceMap": true,
+
+    // Do not allow js
+    "allowJs": false,
+    // No js, ts, maps when errors are reported
+    "noEmitOnError": true,
+    // Do not allow inference to fall back to any type
+    "noImplicitAny": true,
+    // Ensure a return path
+    "noImplicitReturns": true,
+    // Report errors on unused local variables.
+    "noUnusedLocals": false,
+    // obj[foo] suppression
+    "suppressImplicitAnyIndexErrors": true,
+
+    // Ensure that .d.ts files are created by tsc, but not .js files (babel will do this for us)
     "declaration": true,
     "declarationDir": ".",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "removeComments": false,
-    "noImplicitAny": false,
-    "outDir": "dist/es",
+    // Generates a source map for .d.ts files which map back to the original .ts source file.
+    "declarationMap": true,
+    // Ensure that Babel can safely transpile files in the TypeScript project
+    "isolatedModules": true,
 
-    "rootDir": "src"
+    "sourceMap": true,
+
+    "strictFunctionTypes": false
   },
-  "exclude": [
-    "node_modules",
-    "bower_components",
-    "jspm_packages"
-  ]
+  "include": ["./src/**/*"],
+  "exclude": ["node_modules"]
 }
