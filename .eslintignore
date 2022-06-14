@@ -1,0 +1,4 @@
+.eslintrc.js
+dist
+docs/index.js*
+node_modules
