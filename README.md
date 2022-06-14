@@ -11,7 +11,11 @@ Crossbrowser & lightweight way to check if user is looking at the page or intera
 
 From npm
 ```
-npm install @rosskevin/ifvisible --save
+npm install @rosskevin/ifvisible
+
+# or
+
+yarn install @rosskevin/ifvisible
 ```
 
 ## Examples
