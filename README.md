@@ -3,7 +3,7 @@
 
 Crossbrowser & lightweight way to check if user is looking at the page or interacting with it.
 
-#### Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read below for code example or Check [Annotated Source](http://rosskevin.github.com/ifvisible/docs/ifvisible.html)
+Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read below for code example or Check [Annotated Source](http://rosskevin.github.com/ifvisible/docs/ifvisible.html)
 
 
 ## Installation
@@ -127,7 +127,7 @@ ifvisible.onEvery(0.5, function(){
 
 ```
 
-### License
+## License
 MIT.
 
 
