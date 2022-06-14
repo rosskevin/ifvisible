@@ -11,8 +11,7 @@
     "b": "tsc -b --noEmit",
     "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js*",
     "lint": "eslint --ext .js,.ts ./src",
-    "docs": "docco src/*.ts --output docs/docco",
-    "release": "run-p build docs publish"
+    "release": "run-p build publish"
   },
   "repository": {
     "type": "git",
@@ -46,7 +45,6 @@
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "deepmerge": "^4.2.2",
-    "docco": "^0.9.1",
     "eslint": "^8.17.0",
     "eslint-config-airbnb-typescript": "^17.0.0",
     "eslint-plugin-import": "^2.26.0",
