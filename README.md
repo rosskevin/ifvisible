@@ -158,6 +158,8 @@ In contrast this version:
 - publishes UMD and ES bundles (will publish ESM as that comes to pass as well)
 - is fully updated and maintained
 
+NOTE: this fork was `detached` for the sole purpose of making new pull requests point to this repo instead of the original unmaintained parent.
+
 ## License
 
 MIT.
