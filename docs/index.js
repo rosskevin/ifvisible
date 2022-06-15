@@ -1,97 +1,91 @@
 (function (global, factory) {
   typeof exports === 'object' && typeof module !== 'undefined' ? factory(exports) :
   typeof define === 'function' && define.amd ? define(['exports'], factory) :
-  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory((global.ifvisible = global.ifvisible || {}, global.ifvisible.js = {})));
+  (global = typeof globalThis !== 'undefined' ? globalThis : global || self, factory(global.ifvisible = {}));
 })(this, (function (exports) { 'use strict';
 
-  var Events;
-  (function (Events) {
-      const store = {};
-      let setListener;
-      function attach(event, callback) {
-          if (!store[event]) {
-              store[event] = [];
-          }
-          store[event].push(callback);
+  class EventBus {
+      store;
+      constructor() {
+          this.store = {};
       }
-      Events.attach = attach;
-      function fire(event, args = []) {
-          if (store[event]) {
-              store[event].forEach(callback => {
-                  callback(...args);
+      attach(event, callback) {
+          if (!this.store[event]) {
+              this.store[event] = [];
+          }
+          this.store[event].push(callback);
+      }
+      fire(event, data) {
+          if (this.store[event]) {
+              this.store[event].forEach((callback) => {
+                  callback(data);
               });
           }
       }
-      Events.fire = fire;
-      function remove(event, callback) {
+      remove(event, callback) {
           if (!callback) {
-              delete store[event];
+              delete this.store[event];
           }
-          if (store[event]) {
-              store[event] = store[event].filter(savedCallback => {
+          if (this.store[event]) {
+              this.store[event] = this.store[event].filter((savedCallback) => {
                   return callback !== savedCallback;
               });
           }
       }
-      Events.remove = remove;
-      function dom(element, event, callback) {
-          if (!setListener) {
-              if (element.addEventListener) {
-                  setListener = (el, ev, fn) => {
-                      return el.addEventListener(ev, fn, false);
-                  };
-              }
-              else if (typeof element.attachEvent === 'function') {
-                  setListener = (el, ev, fn) => {
-                      return el.attachEvent(`on${ev}`, fn, false);
-                  };
-              }
-              else {
-                  setListener = (el, ev, fn) => {
-                      // eslint-disable-next-line no-return-assign, no-param-reassign
-                      return el[`on${ev}`] = fn;
-                  };
-              }
-          }
-          return setListener(element, event, callback);
-      }
-      Events.dom = dom;
-  })(Events || (Events = {}));
-  // export default Events;
+  }
 
-  const STATUS_ACTIVE = 'active';
-  const STATUS_IDLE = 'idle';
-  const STATUS_HIDDEN = 'hidden';
-  let DOC_HIDDEN;
-  let VISIBILITY_CHANGE_EVENT;
-  // eslint-disable-next-line func-names
-  const IE = (function () {
-      let undef;
-      let v = 3;
-      const div = document.createElement('div');
-      const all = div.getElementsByTagName('i');
-      // eslint-disable-next-line no-cond-assign
-      while (
-      // eslint-disable-next-line no-plusplus, no-sequences
-      div.innerHTML = `<!--[if gt IE ${++v}]><i></i><![endif]-->`,
-          all[0])
-          ;
-      return v > 4 ? v : undef;
-  }());
+  let documentHiddenProperty;
+  let visibilityChangeEvent;
+  function resolveHiddenDetectionMethod(doc) {
+      // lazily do this one time only
+      if (visibilityChangeEvent !== undefined) {
+          return;
+      }
+      // Find correct browser events
+      if (doc.hidden !== undefined) {
+          documentHiddenProperty = 'hidden';
+          visibilityChangeEvent = 'visibilitychange';
+      }
+      else if (doc.mozHidden !== undefined) {
+          documentHiddenProperty = 'mozHidden';
+          visibilityChangeEvent = 'mozvisibilitychange';
+      }
+      else if (doc.msHidden !== undefined) {
+          documentHiddenProperty = 'msHidden';
+          visibilityChangeEvent = 'msvisibilitychange';
+      }
+      else if (doc.webkitHidden !== undefined) {
+          documentHiddenProperty = 'webkitHidden';
+          visibilityChangeEvent = 'webkitvisibilitychange';
+      }
+      if (documentHiddenProperty === undefined) {
+          throw new Error('Unable to determine browser event.  This may be an incompatible browser.  See https://github.com/rosskevin/ifvisible#browsers');
+      }
+  }
+  function isHidden(doc) {
+      resolveHiddenDetectionMethod(doc);
+      return doc[documentHiddenProperty];
+  }
+  function resolveVisibilityChangeEvent(doc) {
+      resolveHiddenDetectionMethod(doc);
+      return visibilityChangeEvent;
+  }
+
   class Timer {
-      ifvisible;
+      id; // NodeJS.Timer
+      stopped;
+      ifvInstance;
       seconds;
       callback;
-      token;
-      stopped = false;
-      constructor(ifvisible, seconds, callback) {
-          this.ifvisible = ifvisible;
+      constructor(ifvInstance, seconds, callback) {
+          this.ifvInstance = ifvInstance;
           this.seconds = seconds;
           this.callback = callback;
+          this.stopped = false;
           this.start();
-          this.ifvisible.on('statusChanged', (data) => {
+          this.ifvInstance.on('statusChanged', (data) => {
               if (this.stopped === false) {
-                  if (data.status === STATUS_ACTIVE) {
+                  if (data && data.status === 'active') {
                       this.start();
                   }
                   else {
@@ -100,14 +94,9 @@
               }
           });
       }
-      start() {
-          this.stopped = false;
-          clearInterval(this.token);
-          this.token = setInterval(this.callback, this.seconds * 1000);
-      }
       stop() {
           this.stopped = true;
-          clearInterval(this.token);
+          clearInterval(this.id);
       }
       resume() {
           this.start();
@@ -115,70 +104,37 @@
       pause() {
           this.stop();
       }
+      start() {
+          this.stopped = false;
+          clearInterval(this.id);
+          this.id = setInterval(this.callback, this.seconds * 1000);
+      }
   }
   class IfVisible {
-      root;
-      doc;
-      status = STATUS_ACTIVE;
+      status = 'active';
       timers = [];
       idleTime = 30000;
       idleStartedTime;
-      isLegacyModeOn = false;
-      constructor(root, doc) {
-          this.root = root;
+      win;
+      doc;
+      eventBus;
+      constructor(win, doc) {
+          this.win = win;
           this.doc = doc;
-          // Find correct browser events
-          if (this.doc.hidden !== undefined) {
-              DOC_HIDDEN = 'hidden';
-              VISIBILITY_CHANGE_EVENT = 'visibilitychange';
-          }
-          else if (this.doc.mozHidden !== undefined) {
-              DOC_HIDDEN = 'mozHidden';
-              VISIBILITY_CHANGE_EVENT = 'mozvisibilitychange';
-          }
-          else if (this.doc.msHidden !== undefined) {
-              DOC_HIDDEN = 'msHidden';
-              VISIBILITY_CHANGE_EVENT = 'msvisibilitychange';
-          }
-          else if (this.doc.webkitHidden !== undefined) {
-              DOC_HIDDEN = 'webkitHidden';
-              VISIBILITY_CHANGE_EVENT = 'webkitvisibilitychange';
-          }
-          if (DOC_HIDDEN === undefined) {
-              this.legacyMode();
-          }
-          else {
-              const trackChange = () => {
-                  if (this.doc[DOC_HIDDEN]) {
-                      this.blur();
-                  }
-                  else {
-                      this.focus();
-                  }
-              };
-              trackChange(); // get initial status
-              Events.dom(this.doc, VISIBILITY_CHANGE_EVENT, trackChange);
-          }
+          this.eventBus = new EventBus();
+          const trackChange = () => {
+              if (isHidden(this.doc)) {
+                  this.blur();
+              }
+              else {
+                  this.focus();
+              }
+          };
+          trackChange(); // get initial status
+          this.doc.addEventListener(resolveVisibilityChangeEvent(doc), // cast it to look like a modern browser event, don't leak type casting everywhere
+          trackChange);
           this.startIdleTimer();
           this.trackIdleStatus();
-      }
-      legacyMode() {
-          // it's already on
-          if (this.isLegacyModeOn) {
-              return;
-          }
-          let BLUR_EVENT = 'blur';
-          const FOCUS_EVENT = 'focus';
-          if (IE < 9) {
-              BLUR_EVENT = 'focusout';
-          }
-          Events.dom(this.root, BLUR_EVENT, () => {
-              return this.blur();
-          });
-          Events.dom(this.root, FOCUS_EVENT, () => {
-              return this.focus();
-          });
-          this.isLegacyModeOn = true;
       }
       startIdleTimer(event) {
           // Prevents Phantom events.
@@ -187,31 +143,31 @@
           }
           this.timers.map(clearTimeout);
           this.timers.length = 0; // clear the array
-          if (this.status === STATUS_IDLE) {
+          if (this.status === 'idle') {
               this.wakeup();
           }
-          this.idleStartedTime = +(new Date());
+          this.idleStartedTime = +new Date();
           this.timers.push(setTimeout(() => {
-              if (this.status === STATUS_ACTIVE || this.status === STATUS_HIDDEN) {
-                  return this.idle();
+              if (this.status === 'active' || this.status === 'hidden') {
+                  this.idle();
               }
           }, this.idleTime));
       }
       trackIdleStatus() {
-          Events.dom(this.doc, 'mousemove', this.startIdleTimer.bind(this));
-          Events.dom(this.doc, 'mousedown', this.startIdleTimer.bind(this));
-          Events.dom(this.doc, 'keyup', this.startIdleTimer.bind(this));
-          Events.dom(this.doc, 'touchstart', this.startIdleTimer.bind(this));
-          Events.dom(this.root, 'scroll', this.startIdleTimer.bind(this));
+          this.doc.addEventListener('mousemove', () => this.startIdleTimer());
+          this.doc.addEventListener('mousedown', () => this.startIdleTimer());
+          this.doc.addEventListener('keyup', () => this.startIdleTimer());
+          this.doc.addEventListener('touchstart', () => this.startIdleTimer());
+          this.win.addEventListener('scroll', () => this.startIdleTimer());
           // When page is focus without any event, it should not be idle.
-          this.focus(this.startIdleTimer.bind(this));
+          this.focus(() => this.startIdleTimer());
       }
       on(event, callback) {
-          Events.attach(event, callback);
+          this.eventBus.attach(event, callback);
           return this;
       }
       off(event, callback) {
-          Events.remove(event, callback);
+          this.eventBus.remove(event, callback);
           return this;
       }
       setIdleDuration(seconds) {
@@ -223,23 +179,26 @@
           return this.idleTime;
       }
       getIdleInfo() {
-          const now = +(new Date());
+          const now = +new Date();
           let res;
-          if (this.status === STATUS_IDLE) {
+          const idleFor = this.idleStartedTime ? now - this.idleStartedTime : 0;
+          if (this.status === 'idle') {
               res = {
                   isIdle: true,
-                  idleFor: now - this.idleStartedTime,
+                  idleFor,
                   timeLeft: 0,
                   timeLeftPer: 100,
               };
           }
           else {
-              const timeLeft = (this.idleStartedTime + this.idleTime) - now;
+              const timeLeft = this.idleStartedTime
+                  ? this.idleStartedTime + this.idleTime - now
+                  : this.idleTime;
               res = {
                   isIdle: false,
-                  idleFor: now - this.idleStartedTime,
+                  idleFor,
                   timeLeft,
-                  timeLeftPer: parseFloat((100 - (timeLeft * 100 / this.idleTime)).toFixed(2)),
+                  timeLeftPer: parseFloat((100 - (timeLeft * 100) / this.idleTime).toFixed(2)),
               };
           }
           return res;
@@ -249,9 +208,9 @@
               this.on('idle', callback);
           }
           else {
-              this.status = STATUS_IDLE;
-              Events.fire('idle');
-              Events.fire('statusChanged', [{ status: this.status }]);
+              this.status = 'idle';
+              this.eventBus.fire('idle');
+              this.eventBus.fire('statusChanged', { status: this.status });
           }
           return this;
       }
@@ -260,9 +219,9 @@
               this.on('blur', callback);
           }
           else {
-              this.status = STATUS_HIDDEN;
-              Events.fire('blur');
-              Events.fire('statusChanged', [{ status: this.status }]);
+              this.status = 'hidden';
+              this.eventBus.fire('blur');
+              this.eventBus.fire('statusChanged', { status: this.status });
           }
           return this;
       }
@@ -270,11 +229,11 @@
           if (callback) {
               this.on('focus', callback);
           }
-          else if (this.status !== STATUS_ACTIVE) {
-              this.status = STATUS_ACTIVE;
-              Events.fire('focus');
-              Events.fire('wakeup');
-              Events.fire('statusChanged', [{ status: this.status }]);
+          else if (this.status !== 'active') {
+              this.status = 'active';
+              this.eventBus.fire('focus');
+              this.eventBus.fire('wakeup');
+              this.eventBus.fire('statusChanged', { status: this.status });
           }
           return this;
       }
@@ -282,10 +241,10 @@
           if (callback) {
               this.on('wakeup', callback);
           }
-          else if (this.status !== STATUS_ACTIVE) {
-              this.status = STATUS_ACTIVE;
-              Events.fire('wakeup');
-              Events.fire('statusChanged', [{ status: this.status }]);
+          else if (this.status !== 'active') {
+              this.status = 'active';
+              this.eventBus.fire('wakeup');
+              this.eventBus.fire('statusChanged', { status: this.status });
           }
           return this;
       }
@@ -296,20 +255,17 @@
           if (check !== undefined) {
               return this.status === check;
           }
-          return this.status === STATUS_ACTIVE;
+          return this.status === 'active';
       }
   }
 
-  // decide between self vs global depending on the environment
-  const root = (typeof self === 'object' && self.self === self && self)
-      || (typeof global === 'object' && global.global === global && global);
-  // set library singleton
-  const ifvisible = new IfVisible(root, document);
-  // set window singleton (e.g. window.ifvisible)
-  if (root) {
-      root.ifvisible = ifvisible;
-  }
+  /* eslint-disable @typescript-eslint/no-unsafe-member-access */
+  // set library singleton and export for direct use
+  const ifvisible = new IfVisible(window, document);
+  window.ifvisible = ifvisible;
 
+  exports.EventBus = EventBus;
+  exports.IfVisible = IfVisible;
   exports.ifvisible = ifvisible;
 
   Object.defineProperty(exports, '__esModule', { value: true });
