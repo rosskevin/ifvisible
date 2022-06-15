@@ -2,7 +2,7 @@
 
 Crossbrowser & lightweight way to check if user is looking at the page or interacting with it.
 
-Check out the [Demo](http://rosskevin.github.com/ifvisible/demo.html) or read below for code examples.
+Check out the [Demo](https://rosskevin.github.io/ifvisible/) or read below for code examples.
 
 ![Demo](demo.jpg)
 
