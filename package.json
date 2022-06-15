@@ -11,6 +11,7 @@
     "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js*",
     "lint": "eslint . --cache --ext .js,.ts",
     "lint:fix": "eslint . --cache --ext .js,.ts --fix",
+    "test": "jest",
     "release": "run-p bundle publish"
   },
   "repository": {
@@ -43,6 +44,7 @@
     "@alienfast/eslint-config": "^3.0.24",
     "@rollup/plugin-node-resolve": "^13.3.0",
     "@tsconfig/create-react-app": "^1.0.2",
+    "@types/jest": "^28.1.1",
     "@typescript-eslint/eslint-plugin": "^5.28.0",
     "@typescript-eslint/parser": "^5.28.0",
     "deepmerge": "^4.2.2",
@@ -53,19 +55,7 @@
     "rimraf": "^3.0.2",
     "rollup": "^2.75.6",
     "rollup-plugin-typescript2": "^0.32.1",
+    "ts-jest": "^28.0.5",
     "typescript": "^4.7.3"
-  },
-  "jest": {
-    "transform": {
-      ".(ts|tsx)": "<rootDir>/node_modules/ts-jest/preprocessor.js"
-    },
-    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(ts|tsx|js)$",
-    "moduleFileExtensions": [
-      "ts",
-      "tsx",
-      "js",
-      "jsx",
-      "json"
-    ]
   }
 }
