@@ -141,7 +141,7 @@ This library is intended to support _modern_ browsers. Legacy IE support (not Ed
 
 ## Why fork?
 
-The previous library was:
+The [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js) library was:
 
 - languishing with no updates
 - old build system
