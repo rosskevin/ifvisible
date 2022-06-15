@@ -3,3 +3,4 @@ dist
 docs/index.js*
 node_modules
 jest.config.js
+rollup.config.js
