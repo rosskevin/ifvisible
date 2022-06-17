@@ -30,7 +30,7 @@
     "declaration": true,
     "declarationDir": ".",
     // Ensure that Babel can safely transpile files in the TypeScript project
-    "isolatedModules": true,
+    "isolatedModules": false, // do this in rollup, because it conflicts with jsdom tests
 
     "sourceMap": true,
 
