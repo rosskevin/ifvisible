@@ -16,8 +16,14 @@ const external = (id) => !id.startsWith('.') && !id.startsWith('/')
 
 const input = './src/index.ts'
 const extensions = ['.ts', '.tsx']
-const tsconfigOverride = { compilerOptions: {} }
-const tsconfigOverrideNoTypes = { compilerOptions: { declaration: false } }
+const tsconfigOverride = { 
+  compilerOptions: {},
+  exclude: ['node_modules', '**/__tests__/**']  // omit all tests from dist by default
+}
+const tsconfigOverrideNoTypes = { 
+  compilerOptions: { declaration: false }, 
+  exclude: ['node_modules', '**/__tests__/**'] 
+}
 
 const umdOutput = {
   input,
