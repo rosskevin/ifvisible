@@ -85,37 +85,13 @@ export class IfVisible {
     this.trackIdleStatus()
   }
 
-  public startIdleTimer(event?: Event) {
-    // Prevents Phantom events.
-    if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
-      return
-    }
-
-    this.timers.map(clearTimeout)
-    this.timers.length = 0 // clear the array
-
-    if (this.status === 'idle') {
-      this.wakeup()
-    }
-
-    this.idleStartedTime = +new Date()
-
-    this.timers.push(
-      setTimeout(() => {
-        if (this.status === 'active' || this.status === 'hidden') {
-          this.idle()
-        }
-      }, this.idleTime),
-    )
-  }
-
   public trackIdleStatus() {
     this.doc.addEventListener('mousemove', () => this.startIdleTimer())
     this.doc.addEventListener('mousedown', () => this.startIdleTimer())
     this.doc.addEventListener('keyup', () => this.startIdleTimer())
     this.doc.addEventListener('touchstart', () => this.startIdleTimer())
     this.win.addEventListener('scroll', () => this.startIdleTimer())
-    // When page is focus without any event, it should not be idle.
+    // When page is focused without any event, it should not be idle.
     this.focus(() => this.startIdleTimer())
   }
 
@@ -165,6 +141,7 @@ export class IfVisible {
   }
 
   public idle(callback?: FireableEventCallback): IfVisible {
+    // used like a setter
     if (callback) {
       this.on('idle', callback)
     } else {
@@ -176,6 +153,7 @@ export class IfVisible {
   }
 
   public blur(callback?: FireableEventCallback): IfVisible {
+    // used like a setter
     if (callback) {
       this.on('blur', callback)
     } else {
@@ -187,6 +165,7 @@ export class IfVisible {
   }
 
   public focus(callback?: FireableEventCallback): IfVisible {
+    // used like a setter
     if (callback) {
       this.on('focus', callback)
     } else if (this.status !== 'active') {
@@ -199,6 +178,7 @@ export class IfVisible {
   }
 
   public wakeup(callback?: FireableEventCallback): IfVisible {
+    // used like a setter
     if (callback) {
       this.on('wakeup', callback)
     } else if (this.status !== 'active') {
@@ -213,10 +193,38 @@ export class IfVisible {
     return new Timer(this, seconds, callback)
   }
 
-  public now(check?: string): boolean {
+  public now(check?: Status): boolean {
     if (check !== undefined) {
       return this.status === check
     }
     return this.status === 'active'
+  }
+
+  public getStatus() {
+    return this.status
+  }
+
+  private startIdleTimer(event?: Event) {
+    // Prevents Phantom events.
+    if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
+      return
+    }
+
+    this.timers.map(clearTimeout)
+    this.timers.length = 0 // clear the array
+
+    if (this.status === 'idle') {
+      this.wakeup()
+    }
+
+    this.idleStartedTime = +new Date()
+
+    this.timers.push(
+      setTimeout(() => {
+        if (this.status === 'active' || this.status === 'hidden') {
+          this.idle()
+        }
+      }, this.idleTime),
+    )
   }
 }
