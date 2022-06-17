@@ -13,7 +13,7 @@
     "lint": "eslint . --cache --ext .js,.ts",
     "lint:fix": "eslint . --cache --ext .js,.ts --fix",
     "test": "jest",
-    "release": "run-p bundle publish"
+    "release": "yarn bundle && yarn npm publish"
   },
   "repository": {
     "type": "git",
