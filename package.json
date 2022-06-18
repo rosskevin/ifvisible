@@ -16,7 +16,7 @@
     "lint": "eslint . --cache --ext .js,.ts",
     "lint:fix": "eslint . --cache --ext .js,.ts --fix",
     "test": "jest",
-    "release": "yarn bundle && yarn npm publish"
+    "release": "yarn bundle && npm publish"
   },
   "repository": {
     "type": "git",
