@@ -73,7 +73,6 @@
 
   class Timer {
       id; // NodeJS.Timer
-      stopped;
       ifvInstance;
       seconds;
       callback;
@@ -81,21 +80,12 @@
           this.ifvInstance = ifvInstance;
           this.seconds = seconds;
           this.callback = callback;
-          this.stopped = false;
           this.start();
           this.ifvInstance.on('statusChanged', (data) => {
-              if (this.stopped === false) {
-                  if (data && data.status === 'active') {
-                      this.start();
-                  }
-                  else {
-                      this.pause();
-                  }
-              }
+              data?.status === 'active' ? this.start() : this.pause();
           });
       }
       stop() {
-          this.stopped = true;
           clearInterval(this.id);
       }
       resume() {
@@ -105,8 +95,8 @@
           this.stop();
       }
       start() {
-          this.stopped = false;
-          clearInterval(this.id);
+          if (this.id !== undefined)
+              clearInterval(this.id);
           this.id = setInterval(this.callback, this.seconds * 1000);
       }
   }
@@ -136,30 +126,13 @@
           this.startIdleTimer();
           this.trackIdleStatus();
       }
-      startIdleTimer(event) {
-          // Prevents Phantom events.
-          if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
-              return;
-          }
-          this.timers.map(clearTimeout);
-          this.timers.length = 0; // clear the array
-          if (this.status === 'idle') {
-              this.wakeup();
-          }
-          this.idleStartedTime = +new Date();
-          this.timers.push(setTimeout(() => {
-              if (this.status === 'active' || this.status === 'hidden') {
-                  this.idle();
-              }
-          }, this.idleTime));
-      }
       trackIdleStatus() {
           this.doc.addEventListener('mousemove', () => this.startIdleTimer());
           this.doc.addEventListener('mousedown', () => this.startIdleTimer());
           this.doc.addEventListener('keyup', () => this.startIdleTimer());
           this.doc.addEventListener('touchstart', () => this.startIdleTimer());
           this.win.addEventListener('scroll', () => this.startIdleTimer());
-          // When page is focus without any event, it should not be idle.
+          // When page is focused without any event, it should not be idle.
           this.focus(() => this.startIdleTimer());
       }
       on(event, callback) {
@@ -204,6 +177,7 @@
           return res;
       }
       idle(callback) {
+          // used like a setter
           if (callback) {
               this.on('idle', callback);
           }
@@ -215,6 +189,7 @@
           return this;
       }
       blur(callback) {
+          // used like a setter
           if (callback) {
               this.on('blur', callback);
           }
@@ -226,6 +201,7 @@
           return this;
       }
       focus(callback) {
+          // used like a setter
           if (callback) {
               this.on('focus', callback);
           }
@@ -238,6 +214,7 @@
           return this;
       }
       wakeup(callback) {
+          // used like a setter
           if (callback) {
               this.on('wakeup', callback);
           }
@@ -256,6 +233,26 @@
               return this.status === check;
           }
           return this.status === 'active';
+      }
+      getStatus() {
+          return this.status;
+      }
+      startIdleTimer(event) {
+          // Prevents Phantom events.
+          if (event instanceof MouseEvent && event.movementX === 0 && event.movementY === 0) {
+              return;
+          }
+          this.timers.map(clearTimeout);
+          this.timers.length = 0; // clear the array
+          if (this.status === 'idle') {
+              this.wakeup();
+          }
+          this.idleStartedTime = +new Date();
+          this.timers.push(setTimeout(() => {
+              if (this.status === 'active' || this.status === 'hidden') {
+                  this.idle();
+              }
+          }, this.idleTime));
       }
   }
 
