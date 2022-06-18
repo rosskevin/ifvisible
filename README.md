@@ -1,6 +1,6 @@
 ## @rosskevin/ifvisible
 
-Crossbrowser & lightweight way to check if user is looking at the page or interacting with it.
+Lightweight way to see if a browser page is visible or the user is interacting.
 
 Check out the [Demo](https://rosskevin.github.io/ifvisible/) or read below for code examples.
 
