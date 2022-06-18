@@ -1,5 +1,6 @@
-![CI](https://github.com/rosskevin/ifvisible/workflows/ci/badge.svg)
-[![Npm package version](https://badgen.net/npm/v/@rosskevin/ifvisible)](https://www.npmjs.com/package/@rosskevin/ifvisible)
+![CI](https://img.shields.io/github/workflow/status/rosskevin/ifvisible/ci?style=for-the-badge)
+![Version](https://img.shields.io/github/package-json/v/rosskevin/ifvisible?style=for-the-badge)
+![MIT](https://img.shields.io/github/license/rosskevin/ifvisible?style=for-the-badge)
 
 ## @rosskevin/ifvisible
 
