@@ -72,7 +72,7 @@ ifvisible
 
 ### `onEvery`
 
-Set intervals that run every X seconds unless the page is not visible.
+Set intervals that run every X seconds if the page is visible.
 
 ```js
 // If page is visible run this function on every half seconds
@@ -84,7 +84,6 @@ ifvisible.onEvery(0.5, () => {
 ### `on`
 
 ```js
-// Handle tab switch or browser minimize states
 ifvisible.on('blur', () => {
   // ...
 })
@@ -93,7 +92,6 @@ ifvisible.on('focus', () => {
   // ...
 })
 
-// Listen for activity events such `idle` or `active`
 ifvisible.on('idle', () => {
   // ...
 })
