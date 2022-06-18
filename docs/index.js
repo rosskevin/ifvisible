@@ -139,7 +139,7 @@
           this.doc = doc;
           this.eventBus = new EventBus();
           this.trackChange(); // get initial status
-          this.reattachListeners(); // attach all listeners with the default options
+          this.reattach(); // attach all listeners with the default options
       }
       on(event, callback) {
           this.eventBus.attach(event, callback);
@@ -151,7 +151,7 @@
       }
       setIdleDuration(seconds) {
           this.idleTime = seconds * 1000;
-          this.reattachListeners();
+          this.reattach();
           return this;
       }
       getIdleDuration() {
@@ -184,7 +184,7 @@
       }
       setThrottleDuration(milliseconds) {
           this.throttleDuration = milliseconds;
-          this.reattachListeners;
+          this.reattach;
           return this;
       }
       idle(callback) {
@@ -248,20 +248,10 @@
       getStatus() {
           return this.status;
       }
-      trackChange() {
-          if (isHidden(this.doc)) {
-              this.blur();
-          }
-          else {
-              this.focus();
-          }
-      }
       /**
-       * Helper broken out separately to allow for recognition of changes to option and reattachment with those taken into account.
+       * Removes all listeners from the DOM, but not user added listeners so it may be reattached later.
        */
-      reattachListeners() {
-          //-----------------------------
-          // reap
+      detach() {
           if (this.winListeners !== undefined &&
               this.docListeners !== undefined &&
               this.focusListener !== undefined) {
@@ -275,12 +265,24 @@
               this.off('focus', this.focusListener); // reverse the attach process we do below
           }
           // wipe out old listener storage
+          this.winListeners = undefined;
+          this.docListeners = undefined;
+          this.focusListener = undefined;
+      }
+      /**
+       * Allows for:
+       *  - control of DOM detach/reattach
+       *  - recognition of changes to option and reattachment with those taken into account.
+       */
+      reattach() {
+          this.detach();
+          // initialize storage
           this.winListeners = {};
           this.docListeners = {};
           this.focusListener = undefined;
           //-----------------------------
           // instantiate listeners for doc and store them
-          this.docListeners[resolveVisibilityChangeEvent(this.doc)] = throttle(this.trackChange, this.throttleDuration);
+          this.docListeners[resolveVisibilityChangeEvent(this.doc)] = throttle(() => this.trackChange(), this.throttleDuration);
           for (const name of ['mousemove', 'mousedown', 'keyup', 'touchstart']) {
               this.docListeners[name] = throttle(() => this.startIdleTimer(), this.throttleDuration);
           }
@@ -301,6 +303,14 @@
           this.focus(this.focusListener);
           // finally kick everything off
           this.startIdleTimer();
+      }
+      trackChange() {
+          if (isHidden(this.doc)) {
+              this.blur();
+          }
+          else {
+              this.focus();
+          }
       }
       startIdleTimer(event) {
           // Prevents Phantom events.
