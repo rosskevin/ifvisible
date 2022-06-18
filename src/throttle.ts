@@ -1,4 +1,4 @@
-type Throttled<T extends (...args: any) => any> = (...args: Parameters<T>) => ReturnType<T>
+export type Throttled<T extends (...args: any) => any> = (...args: Parameters<T>) => ReturnType<T>
 
 /**
  * Creates a throttled {callback} will be called at most once per {limit} millisonds.

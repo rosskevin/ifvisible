@@ -22,7 +22,7 @@ yarn install @rosskevin/ifvisible
 
 ### Instantiation
 
-This library provides a singleton exposed as `ifvisible` by default, but for more advancecd users, they can import the class directly for a different attachment.
+This library provides a singleton exposed as `ifvisible` by default in addition to a UMD package, but for more advancecd users, they can import the class directly for a different attachment from the ES package.
 
 ```js
 // import singleton global bound to the `window`
@@ -58,6 +58,16 @@ if (!ifvisible.now('hidden')) {
 // active: page is visible and user is active
 ```
 
+### Options
+
+E
+
+```js
+ifvisible
+  .setIdleDuration(120) // default: 30 - Page will become idle after 120 seconds
+  .setThrottleDuration(1000) // default: 500 - DOM event triggers will be throttled to avoid bogging down UI
+```
+
 ### Handle tab switch or browser minimize states
 
 ```js
@@ -86,14 +96,6 @@ ifvisible.on('wakeup', function () {
   // go back updating data
   stream.resume()
 })
-```
-
-### `setIdleDuration`
-
-Default idle duration is 60 seconds but you can change it with `setIdleDuration` method
-
-```js
-ifvisible.setIdleDuration(120) // Page will become idle after 120 seconds
 ```
 
 ### Manually trigger status events
