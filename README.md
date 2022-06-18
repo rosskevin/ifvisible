@@ -70,42 +70,37 @@ ifvisible
   .setThrottleDuration(1000) // default: 500 - DOM event triggers will be throttled to avoid bogging down UI
 ```
 
-### `on`
+### `onEvery`
+
+Set intervals that run every X seconds unless the page is not visible.
 
 ```js
-// Handle tab switch or browser minimize states
-ifvisible.on('blur', function () {
-  // ...
-})
-
-ifvisible.on('focus', function () {
-  // ...
-})
-
-// Listen for activity events such `idle` or `active`
-ifvisible.on('idle', function () {
-  // ...
-})
-
-ifvisible.on('wakeup', function () {
+// If page is visible run this function on every half seconds
+ifvisible.onEvery(0.5, () => {
   // ...
 })
 ```
 
-### Manually trigger status events
+### `on`
 
 ```js
-// will put page in a idle status
-ifvisible.idle()
-
-ifvisible.idle(function () {
+// Handle tab switch or browser minimize states
+ifvisible.on('blur', () => {
   // ...
 })
 
-// other methods are
-ifvisible.blur() // Will trigger idle event as well
-ifvisible.focus() // Will trigger wakeup event as well
-ifvisible.wakeup()
+ifvisible.on('focus', () => {
+  // ...
+})
+
+// Listen for activity events such `idle` or `active`
+ifvisible.on('idle', () => {
+  // ...
+})
+
+ifvisible.on('wakeup', () => {
+  // ...
+})
 ```
 
 ### `off`:
@@ -117,15 +112,18 @@ ifvisible.off('idle') // will remove all events triggered on idle
 // works with other events: blur | wakeup | focus
 ```
 
-### `onEvery`
-
-Set intervals that run every X seconds unless the page is not visible.
+### Manually trigger status events
 
 ```js
-// If page is visible run this function on every half seconds
-ifvisible.onEvery(0.5, function () {
+// will put page in a idle status
+ifvisible.idle()
+
+// will set a callback to listen - same as on('idle', () => void)
+ifvisible.idle(() => {
   // ...
 })
+
+// works with other events: blur | wakeup | focus
 ```
 
 ### Advanced
