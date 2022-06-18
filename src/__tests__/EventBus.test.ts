@@ -29,7 +29,7 @@ describe('Events', () => {
   it('should pass arguments to event handler', () => {
     expect.assertions(1)
     eventBus.attach('statusChanged', (data) => {
-      expect(data && data.status).toEqual('active')
+      expect(data?.status).toEqual('active')
     })
     eventBus.fire('statusChanged', { status: 'active' })
   })
@@ -37,7 +37,7 @@ describe('Events', () => {
   it('should remove events', () => {
     expect.assertions(1)
     eventBus.attach('statusChanged', (data) => {
-      expect(data && data.status).toEqual('active')
+      expect(data?.status).toEqual('active')
     })
     eventBus.fire('statusChanged', { status: 'active' })
     eventBus.remove('statusChanged')
@@ -48,11 +48,11 @@ describe('Events', () => {
   it('should remove events just the given event', () => {
     expect.assertions(3)
     const handler = (data: Data) => {
-      expect(data && data.status).toEqual('active')
+      expect(data?.status).toEqual('active')
     }
     eventBus.attach('statusChanged', handler)
     eventBus.attach('statusChanged', (data) => {
-      expect(data && data.status).toEqual('active')
+      expect(data?.status).toEqual('active')
     })
     eventBus.fire('statusChanged', { status: 'active' })
     eventBus.remove('statusChanged', handler) // removes the first one but leaves the second

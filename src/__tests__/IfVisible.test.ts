@@ -58,7 +58,7 @@ describe('IfVisible', () => {
 
       it(`fires status change 'idle'`, () => {
         let newStatus: Status | undefined
-        ifv.on('statusChanged', (data) => (newStatus = data && data.status))
+        ifv.on('statusChanged', (data) => (newStatus = data?.status))
         ifv.idle()
         expect(newStatus).toEqual('idle')
       })
@@ -84,7 +84,7 @@ describe('IfVisible', () => {
 
       it(`fires status change 'hidden'`, () => {
         let newStatus: Status | undefined
-        ifv.on('statusChanged', (data) => (newStatus = data && data.status))
+        ifv.on('statusChanged', (data) => (newStatus = data?.status))
         ifv.blur()
         expect(newStatus).toEqual('hidden')
       })
@@ -116,7 +116,7 @@ describe('IfVisible', () => {
 
       it(`fires status change 'active'`, () => {
         let newStatus: Status | undefined
-        ifv.on('statusChanged', (data) => (newStatus = data && data.status))
+        ifv.on('statusChanged', (data) => (newStatus = data?.status))
         ifv.focus()
         expect(newStatus).toEqual('active')
       })
@@ -149,7 +149,7 @@ describe('IfVisible', () => {
 
       it(`fires status change 'active'`, () => {
         let newStatus: Status | undefined
-        ifv.on('statusChanged', (data) => (newStatus = data && data.status))
+        ifv.on('statusChanged', (data) => (newStatus = data?.status))
         ifv.wakeup()
         expect(newStatus).toEqual('active')
       })
@@ -257,7 +257,7 @@ describe('IfVisible', () => {
         expect(spy).toHaveBeenCalledTimes(2)
       })
 
-      it(`does not continue to fire callback when 'idle' after timeout`, () => {
+      it(`stops firing when 'idle' after timeout`, () => {
         const spy = jest.fn()
         ifv.onEvery(1, spy)
         expectActive(ifv)
@@ -273,6 +273,31 @@ describe('IfVisible', () => {
         jest.advanceTimersByTime(59000)
         expectIdle(ifv)
         expect(spy).toHaveBeenCalledTimes(30 - 1) // it's always -1, not sure why based on original code, but not a big deal to me at least
+      })
+
+      it(`restarts firing when waking after event`, () => {
+        const spy = jest.fn()
+        ifv.onEvery(1, spy)
+        expectActive(ifv)
+        expect(spy).not.toHaveBeenCalled()
+
+        // 1 total (of 60)
+        jest.advanceTimersByTime(30000)
+        expectIdle(ifv)
+        expect(spy).toHaveBeenCalledTimes(30 - 1) // it's always -1, not sure why based on original code, but not a big deal to me at least
+
+        //
+        // now, let's wake this up and check to see it resumes
+        //
+        expectIdle(ifv)
+        document.dispatchEvent(new window.Event('mousemove'))
+        expectActive(ifv)
+        expect(spy).toHaveBeenCalledTimes(30 - 1) // same as above, we haven't moved time.
+
+        // see if it reinitiates
+        jest.advanceTimersByTime(1000)
+        expectActive(ifv)
+        expect(spy).toHaveBeenCalledTimes(30)
       })
     })
   })

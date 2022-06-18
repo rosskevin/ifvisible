@@ -11,7 +11,6 @@ export interface IIdleInfo {
 type TimerCallback = () => void
 class Timer {
   private id: NodeJS.Timeout | string | number | undefined // NodeJS.Timer
-  private stopped: boolean
   private ifvInstance: IfVisible
   private seconds: number
   private callback: TimerCallback
@@ -20,22 +19,14 @@ class Timer {
     this.ifvInstance = ifvInstance
     this.seconds = seconds
     this.callback = callback
-    this.stopped = false
     this.start()
 
     this.ifvInstance.on('statusChanged', (data) => {
-      if (this.stopped === false) {
-        if (data && data.status === 'active') {
-          this.start()
-        } else {
-          this.pause()
-        }
-      }
+      data?.status === 'active' ? this.start() : this.pause()
     })
   }
 
   public stop() {
-    this.stopped = true
     clearInterval(this.id)
   }
 
@@ -48,8 +39,7 @@ class Timer {
   }
 
   private start() {
-    this.stopped = false
-    clearInterval(this.id)
+    if (this.id !== undefined) clearInterval(this.id)
     this.id = setInterval(this.callback, this.seconds * 1000)
   }
 }
