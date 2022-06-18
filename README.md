@@ -1,3 +1,6 @@
+![CI](https://github.com/rosskevin/ifvisible/actions/workflows/test/badge.svg)
+[![Npm package version](https://badgen.net/npm/v/@rosskevin/ifvisible)](https://www.npmjs.com/package/@rosskevin/ifvisible)
+
 ## @rosskevin/ifvisible
 
 Lightweight way to see if a browser page is visible or the user is interacting.
