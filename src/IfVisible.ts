@@ -1,5 +1,6 @@
 import { EventBus, FireableEvent, FireableEventCallback, Status } from './EventBus'
 import { isHidden, resolveVisibilityChangeEvent } from './hidden'
+import { throttle } from './throttle'
 
 export interface IIdleInfo {
   isIdle: boolean
@@ -44,6 +45,7 @@ class Timer {
   }
 }
 
+type ListenerCallback = (...args: any) => void
 export class IfVisible {
   private status: Status = 'active'
   private timers: NodeJS.Timeout[] = []
@@ -52,37 +54,18 @@ export class IfVisible {
   private win: Window
   private doc: Document
   private eventBus: EventBus
+  private winListeners?: { [key: string]: ListenerCallback }
+  private docListeners?: { [key: string]: ListenerCallback }
+  private focusListener?: FireableEventCallback
+  private throttleDuration = 500
 
   constructor(win: Window, doc: Document) {
     this.win = win
     this.doc = doc
     this.eventBus = new EventBus()
 
-    const trackChange = () => {
-      if (isHidden(this.doc)) {
-        this.blur()
-      } else {
-        this.focus()
-      }
-    }
-    trackChange() // get initial status
-    this.doc.addEventListener(
-      resolveVisibilityChangeEvent(doc) as 'visibilitychange', // cast it to look like a modern browser event, don't leak type casting everywhere
-      trackChange,
-    )
-
-    this.startIdleTimer()
-    this.trackIdleStatus()
-  }
-
-  public trackIdleStatus() {
-    this.doc.addEventListener('mousemove', () => this.startIdleTimer())
-    this.doc.addEventListener('mousedown', () => this.startIdleTimer())
-    this.doc.addEventListener('keyup', () => this.startIdleTimer())
-    this.doc.addEventListener('touchstart', () => this.startIdleTimer())
-    this.win.addEventListener('scroll', () => this.startIdleTimer())
-    // When page is focused without any event, it should not be idle.
-    this.focus(() => this.startIdleTimer())
+    this.trackChange() // get initial status
+    this.reattachListeners() // attach all listeners with the default options
   }
 
   public on(event: FireableEvent, callback: FireableEventCallback): IfVisible {
@@ -97,7 +80,7 @@ export class IfVisible {
 
   public setIdleDuration(seconds: number): IfVisible {
     this.idleTime = seconds * 1000
-    this.startIdleTimer()
+    this.reattachListeners()
     return this
   }
 
@@ -128,6 +111,12 @@ export class IfVisible {
       }
     }
     return res
+  }
+
+  public setThrottleDuration(milliseconds: number): IfVisible {
+    this.throttleDuration = milliseconds
+    this.reattachListeners
+    return this
   }
 
   public idle(callback?: FireableEventCallback): IfVisible {
@@ -192,6 +181,75 @@ export class IfVisible {
 
   public getStatus() {
     return this.status
+  }
+
+  private trackChange() {
+    if (isHidden(this.doc)) {
+      this.blur()
+    } else {
+      this.focus()
+    }
+  }
+
+  /**
+   * Helper broken out separately to allow for recognition of changes to option and reattachment with those taken into account.
+   */
+  private reattachListeners() {
+    //-----------------------------
+    // reap
+    if (
+      this.winListeners !== undefined &&
+      this.docListeners !== undefined &&
+      this.focusListener !== undefined
+    ) {
+      // detach all previous listeners first
+      for (const name of Object.getOwnPropertyNames(this.winListeners)) {
+        this.win.removeEventListener(name, this.winListeners[name])
+      }
+      for (const name of Object.getOwnPropertyNames(this.docListeners)) {
+        this.doc.removeEventListener(name, this.docListeners[name])
+      }
+
+      this.off('focus', this.focusListener) // reverse the attach process we do below
+    }
+
+    // wipe out old listener storage
+    this.winListeners = {}
+    this.docListeners = {}
+    this.focusListener = undefined
+
+    //-----------------------------
+    // instantiate listeners for doc and store them
+    this.docListeners[resolveVisibilityChangeEvent(this.doc) as 'visibilitychange'] = throttle(
+      this.trackChange,
+      this.throttleDuration,
+    )
+
+    for (const name of ['mousemove', 'mousedown', 'keyup', 'touchstart']) {
+      this.docListeners[name] = throttle(() => this.startIdleTimer(), this.throttleDuration)
+    }
+
+    // instantiate listeners for win and store them
+    this.winListeners['scroll'] = throttle(() => this.startIdleTimer(), this.throttleDuration)
+
+    // instantiate focus listener
+    this.focusListener = throttle(() => this.startIdleTimer(), this.throttleDuration)
+
+    //-----------------------------
+    // attach doc listeners
+    for (const name of Object.getOwnPropertyNames(this.docListeners)) {
+      this.doc.addEventListener(name, this.docListeners[name])
+    }
+
+    // attach win listeners
+    for (const name of Object.getOwnPropertyNames(this.winListeners)) {
+      this.win.addEventListener(name, this.winListeners[name])
+    }
+    // When page is focus without any event, it should not be idle.
+    this.focus(this.focusListener)
+
+    // finally kick everything off
+    this.startIdleTimer()
   }
 
   private startIdleTimer(event?: Event) {

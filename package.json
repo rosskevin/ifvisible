@@ -1,6 +1,6 @@
 {
   "name": "@rosskevin/ifvisible",
-  "version": "3.0.1",
+  "version": "3.2.0",
   "description": "Cross-browser, lightweight way to check if user is looking at the page or interacting with it. (wrapper around HTML5 visibility api)",
   "packageManager": "yarn@3.2.1",
   "main": "dist/umd/index.js",
@@ -16,7 +16,7 @@
     "lint": "eslint . --cache --ext .js,.ts",
     "lint:fix": "eslint . --cache --ext .js,.ts --fix",
     "test": "jest",
-    "release": "yarn bundle && yarn npm publish"
+    "release": "yarn bundle && npm publish"
   },
   "repository": {
     "type": "git",
