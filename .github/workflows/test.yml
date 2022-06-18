@@ -1,0 +1,22 @@
+name: Test
+on: [push, pull_request]
+
+jobs:
+  test_project:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node: ['18']
+    name: Node ${{ matrix.node }} Tests
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node }}
+      - name: Npm install
+        run: npm ci
+      - name: Npm Lint
+        run: npm run test:lint
+      - name: Npm test
+        run: npm run test:unit

@@ -11,7 +11,7 @@
   },
   "scripts": {
     "bundle": "run-s clean && rollup --config rollup.config.js",
-    "b": "tsc -b",
+    "ci": "tsc -b",
     "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js*",
     "lint": "eslint . --cache --ext .js,.ts",
     "lint:fix": "eslint . --cache --ext .js,.ts --fix",
