@@ -1,5 +1,6 @@
 import { EventBus, FireableEvent, FireableEventCallback, Status } from './EventBus'
 import { isHidden, resolveVisibilityChangeEvent } from './hidden'
+import { throttle } from './throttle'
 
 export interface IIdleInfo {
   isIdle: boolean
@@ -44,6 +45,8 @@ class Timer {
   }
 }
 
+const BROWSER_EVENT_LIMIT = 1000
+
 export class IfVisible {
   private status: Status = 'active'
   private timers: NodeJS.Timeout[] = []
@@ -68,7 +71,7 @@ export class IfVisible {
     trackChange() // get initial status
     this.doc.addEventListener(
       resolveVisibilityChangeEvent(doc) as 'visibilitychange', // cast it to look like a modern browser event, don't leak type casting everywhere
-      trackChange,
+      throttle(trackChange, BROWSER_EVENT_LIMIT),
     )
 
     this.startIdleTimer()
@@ -76,13 +79,28 @@ export class IfVisible {
   }
 
   public trackIdleStatus() {
-    this.doc.addEventListener('mousemove', () => this.startIdleTimer())
-    this.doc.addEventListener('mousedown', () => this.startIdleTimer())
-    this.doc.addEventListener('keyup', () => this.startIdleTimer())
-    this.doc.addEventListener('touchstart', () => this.startIdleTimer())
-    this.win.addEventListener('scroll', () => this.startIdleTimer())
-    // When page is focused without any event, it should not be idle.
-    this.focus(() => this.startIdleTimer())
+    this.doc.addEventListener(
+      'mousemove',
+      throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT),
+    )
+    this.doc.addEventListener(
+      'mousedown',
+      throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT),
+    )
+    this.doc.addEventListener(
+      'keyup',
+      throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT),
+    )
+    this.doc.addEventListener(
+      'touchstart',
+      throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT),
+    )
+    this.win.addEventListener(
+      'scroll',
+      throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT),
+    )
+    // When page is focus without any event, it should not be idle.
+    this.focus(throttle(() => this.startIdleTimer(), BROWSER_EVENT_LIMIT))
   }
 
   public on(event: FireableEvent, callback: FireableEventCallback): IfVisible {

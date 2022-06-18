@@ -152,6 +152,7 @@ The [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js) librar
 - did not publish the typescript types (even though it was written in typescript)
 - burdened with legacy code everywhere
 - only a UMD module available.
+- we wanted to improve the library
 
 In contrast this version:
 
