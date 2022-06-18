@@ -139,6 +139,13 @@ ifvisible.onEvery(0.5, function () {
 })
 ```
 
+### Advanced
+
+```js
+ifvisible.detach() // detach from DOM but keep user listeners stored within ifvisible
+ifvisible.reattach() // reattach to DOM and start listening again
+```
+
 ## Browsers
 
 This library is intended to support _modern_ browsers. Legacy IE support (not Edge) was dropped to clean up code. Given Microsoft discontinued IE altogether, moving forward is in the best interest of maintenance. If you need legacy support, look towards the [original ifvisible.js](https://github.com/serkanyersen/ifvisible.js)
@@ -168,3 +175,7 @@ NOTE: this fork was `detached` for the sole purpose of making new pull requests 
 ## License
 
 MIT.
+
+```
+
+```

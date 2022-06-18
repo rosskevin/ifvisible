@@ -65,7 +65,7 @@ export class IfVisible {
     this.eventBus = new EventBus()
 
     this.trackChange() // get initial status
-    this.reattachListeners() // attach all listeners with the default options
+    this.reattach() // attach all listeners with the default options
   }
 
   public on(event: FireableEvent, callback: FireableEventCallback): IfVisible {
@@ -80,7 +80,7 @@ export class IfVisible {
 
   public setIdleDuration(seconds: number): IfVisible {
     this.idleTime = seconds * 1000
-    this.reattachListeners()
+    this.reattach()
     return this
   }
 
@@ -115,7 +115,7 @@ export class IfVisible {
 
   public setThrottleDuration(milliseconds: number): IfVisible {
     this.throttleDuration = milliseconds
-    this.reattachListeners
+    this.reattach
     return this
   }
 
@@ -183,20 +183,10 @@ export class IfVisible {
     return this.status
   }
 
-  private trackChange() {
-    if (isHidden(this.doc)) {
-      this.blur()
-    } else {
-      this.focus()
-    }
-  }
-
   /**
-   * Helper broken out separately to allow for recognition of changes to option and reattachment with those taken into account.
+   * Removes all listeners from the DOM, but not user added listeners so it may be reattached later.
    */
-  private reattachListeners() {
-    //-----------------------------
-    // reap
+  public detach() {
     if (
       this.winListeners !== undefined &&
       this.docListeners !== undefined &&
@@ -214,6 +204,20 @@ export class IfVisible {
     }
 
     // wipe out old listener storage
+    this.winListeners = undefined
+    this.docListeners = undefined
+    this.focusListener = undefined
+  }
+
+  /**
+   * Allows for:
+   *  - control of DOM detach/reattach
+   *  - recognition of changes to option and reattachment with those taken into account.
+   */
+  public reattach() {
+    this.detach()
+
+    // initialize storage
     this.winListeners = {}
     this.docListeners = {}
     this.focusListener = undefined
@@ -221,7 +225,7 @@ export class IfVisible {
     //-----------------------------
     // instantiate listeners for doc and store them
     this.docListeners[resolveVisibilityChangeEvent(this.doc) as 'visibilitychange'] = throttle(
-      this.trackChange,
+      () => this.trackChange(),
       this.throttleDuration,
     )
 
@@ -250,6 +254,14 @@ export class IfVisible {
 
     // finally kick everything off
     this.startIdleTimer()
+  }
+
+  private trackChange() {
+    if (isHidden(this.doc)) {
+      this.blur()
+    } else {
+      this.focus()
+    }
   }
 
   private startIdleTimer(event?: Event) {
