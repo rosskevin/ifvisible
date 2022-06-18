@@ -6,6 +6,9 @@
   "main": "dist/umd/index.js",
   "module": "./dist/es/index.js",
   "types": "./dist/es/index.d.ts",
+  "publishConfig": {
+    "access": "public"
+  },
   "scripts": {
     "bundle": "run-s clean && rollup --config rollup.config.js",
     "b": "tsc -b",
