@@ -1,4 +1,4 @@
-name: Test
+name: ci
 on: # make sure not duplicated
   push:
     branches:

@@ -1,4 +1,4 @@
-![CI](https://github.com/rosskevin/ifvisible/actions/workflows/test/badge.svg)
+![CI](https://github.com/rosskevin/ifvisible/workflows/ci/badge.svg)
 [![Npm package version](https://badgen.net/npm/v/@rosskevin/ifvisible)](https://www.npmjs.com/package/@rosskevin/ifvisible)
 
 ## @rosskevin/ifvisible
