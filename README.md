@@ -30,7 +30,7 @@ This library provides a singleton exposed as `ifvisible` by default in addition 
 
 ```js
 // import singleton global bound to the `window`
-import ifvisible from '@rosskevin/ifvisible'
+import { ifvisible } from '@rosskevin/ifvisible'
 ```
 
 or for more advanced usage for use cases that a singleton may not be useful, you may instantiate it directly:
