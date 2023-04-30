@@ -40,7 +40,7 @@ function resolveHiddenDetectionMethod(doc: Document) {
 
 export function isHidden(doc: Document) {
   resolveHiddenDetectionMethod(doc)
-  return doc[documentHiddenProperty as DocumentHidden] as boolean
+  return (doc as any)[documentHiddenProperty as DocumentHidden] as boolean
 }
 
 export function resolveVisibilityChangeEvent(doc: Document) {

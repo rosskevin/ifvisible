@@ -6,7 +6,7 @@ yarn-error.log
 # yarn zero install enabled
 .pnp.*
 .yarn/*
-!.yarn/cache
+#!.yarn/cache
 !.yarn/unplugged
 !.yarn/patches
 !.yarn/plugins
@@ -16,3 +16,6 @@ yarn-error.log
 
 # ignore any examples collected
 .github/workflows/eg-*
+
+# ci will cache these instead
+.yarn/cache
