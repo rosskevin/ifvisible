@@ -3,14 +3,21 @@
   "version": "3.3.1",
   "description": "Cross-browser, lightweight way to check if user is looking at the page or interacting with it. (wrapper around HTML5 visibility api)",
   "packageManager": "yarn@3.5.0",
-  "main": "dist/umd/index.js",
-  "module": "./dist/es/index.js",
-  "types": "./dist/es/index.d.ts",
+  "type": "module",
+  "main-types-note": "This is to appease tsc, types will be removed by clean-package. see https://github.com/rosskevin/ts-esm-workspaces/tree/bug-main-required-to-build#workaround ",
+  "main": "./dist/index.js",
+  "exports": {
+    "./package.json": "./package.json",
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
   "publishConfig": {
     "access": "public"
   },
   "scripts": {
-    "build": "run-s clean build:ide build:tsup",
+    "build": "run-s clean build:ide build:tsup && rimraf dist/es && cp -r dist/index.js* docs/.",
     "build:ide": "echo 'tsc -b' && tsc -b",
     "build:tsup": "tsup",
     "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js* || true",
