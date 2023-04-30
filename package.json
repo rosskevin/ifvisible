@@ -1,6 +1,6 @@
 {
   "name": "@rosskevin/ifvisible",
-  "version": "3.3.1",
+  "version": "3.3.2",
   "description": "Cross-browser, lightweight way to check if user is looking at the page or interacting with it. (wrapper around HTML5 visibility api)",
   "packageManager": "yarn@3.5.0",
   "type": "module",
