@@ -17,7 +17,7 @@
     "access": "public"
   },
   "scripts": {
-    "build": "run-s clean build:ide build:tsup && rimraf dist/es && cp -r dist/index.js* docs/.",
+    "build": "run-s clean build:ide build:tsup && cp -r dist/index.js* docs/.",
     "build:ide": "echo 'tsc -b' && tsc -b",
     "build:tsup": "tsup",
     "clean": "tsc -b --clean || true && rimraf dist || true && rimraf .eslintcache && rimraf docs/index.js* || true",
@@ -66,6 +66,7 @@
     "@types/prettier": "^2",
     "@typescript-eslint/eslint-plugin": "^5.59.1",
     "@typescript-eslint/parser": "^5.59.1",
+    "auto": "^10.46.0",
     "deepmerge": "^4.3.1",
     "eslint": "^8.39.0",
     "jest": "^29.5.0",
