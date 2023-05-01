@@ -1,3 +1,15 @@
+# v3.3.3 (Mon May 01 2023)
+
+#### 🐛 Bug Fix
+
+- Switch docs page away from UMD include to ESM module [#16](https://github.com/rosskevin/ifvisible/pull/16) ([@rosskevin](https://github.com/rosskevin))
+
+#### Authors: 1
+
+- Kevin Ross ([@rosskevin](https://github.com/rosskevin))
+
+---
+
 # v3.3.2 (Sun Apr 30 2023)
 
 #### 🐛 Bug Fix
