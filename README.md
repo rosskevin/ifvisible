@@ -1,6 +1,7 @@
-![CI](https://img.shields.io/github/workflow/status/rosskevin/ifvisible/ci?style=for-the-badge)
+![CI](https://img.shields.io/github/actions/workflow/status/rosskevin/ifvisible/release.yml?style=for-the-badge)
 ![Version](https://img.shields.io/github/package-json/v/rosskevin/ifvisible?style=for-the-badge)
 ![MIT](https://img.shields.io/github/license/rosskevin/ifvisible?style=for-the-badge)
+![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)
 
 ## @rosskevin/ifvisible
 
