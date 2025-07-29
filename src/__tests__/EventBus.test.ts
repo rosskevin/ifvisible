@@ -1,4 +1,4 @@
-import { Data, EventBus } from '../EventBus'
+import { Data, EventBus } from '../EventBus.js'
 
 let eventBus: EventBus
 

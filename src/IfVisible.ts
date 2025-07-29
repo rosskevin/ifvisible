@@ -1,6 +1,6 @@
-import { EventBus, FireableEvent, FireableEventCallback, Status } from './EventBus'
-import { isHidden, resolveVisibilityChangeEvent } from './hidden'
-import { throttle } from './throttle'
+import { EventBus, FireableEvent, FireableEventCallback, Status } from './EventBus.js'
+import { isHidden, resolveVisibilityChangeEvent } from './hidden.js'
+import { throttle } from './throttle.js'
 
 export interface IIdleInfo {
   isIdle: boolean
@@ -224,7 +224,8 @@ export class IfVisible {
 
     //-----------------------------
     // instantiate listeners for doc and store them
-    this.docListeners[resolveVisibilityChangeEvent(this.doc) as 'visibilitychange'] = () => this.trackChange()
+    this.docListeners[resolveVisibilityChangeEvent(this.doc) as 'visibilitychange'] = () =>
+      this.trackChange()
 
     for (const name of ['mousemove', 'mousedown', 'keyup', 'touchstart']) {
       this.docListeners[name] = throttle(() => this.startIdleTimer(), this.throttleDuration)
