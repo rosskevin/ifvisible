@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unsafe-member-access */
-import { IfVisible } from './IfVisible'
+import { IfVisible } from './IfVisible.js'
 
 // set library singleton and export for direct use
 export const ifvisible = new IfVisible(window, document)
@@ -7,5 +7,5 @@ export const ifvisible = new IfVisible(window, document)
 // set window singleton (e.g. window.ifvisible) to the same instance
 ;(window as any).ifvisible = ifvisible
 
-export * from './EventBus'
-export * from './IfVisible'
+export * from './EventBus.js'
+export * from './IfVisible.js'

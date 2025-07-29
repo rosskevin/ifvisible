@@ -1,6 +1,6 @@
 *.log
 tmp
-/dist
+dist
 .eslintcache
 tsconfig.tsbuildinfo
 

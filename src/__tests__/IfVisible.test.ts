@@ -1,5 +1,7 @@
-import { FireableEvent, Status } from '../EventBus'
-import { IfVisible } from '../IfVisible'
+import { vi } from 'vitest'
+
+import { FireableEvent, Status } from '../EventBus.js'
+import { IfVisible } from '../IfVisible.js'
 
 function expectIt(ifv: IfVisible, status: Status) {
   expect(ifv.getStatus()).toEqual(status)
@@ -18,12 +20,13 @@ function expectHidden(ifv: IfVisible) {
 describe('IfVisible', () => {
   let ifv: IfVisible
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2022-06-16'))
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2022-06-16'))
     ifv = new IfVisible(window, document)
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   describe('when instantiating', () => {
@@ -35,11 +38,11 @@ describe('IfVisible', () => {
       expectActive(ifv)
 
       // 10 total (of 30)
-      jest.advanceTimersByTime(10000)
+      vi.advanceTimersByTime(10000)
       expectActive(ifv)
 
       // 30 total (of 30)
-      jest.advanceTimersByTime(20000)
+      vi.advanceTimersByTime(20000)
       expectIdle(ifv)
     })
   })
@@ -63,10 +66,10 @@ describe('IfVisible', () => {
       })
 
       it(`fires 'idle'`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.on('idle', spy)
         ifv.idle()
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
@@ -89,10 +92,10 @@ describe('IfVisible', () => {
       })
 
       it(`fires 'blur'`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.on('blur', spy)
         ifv.blur()
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
@@ -100,7 +103,7 @@ describe('IfVisible', () => {
     describe('focus', () => {
       beforeEach(() => {
         expectActive(ifv)
-        jest.advanceTimersByTime(30000)
+        vi.advanceTimersByTime(30000)
         expectIdle(ifv)
       })
 
@@ -121,10 +124,10 @@ describe('IfVisible', () => {
       })
       ;['focus', 'wakeup'].forEach((name) => {
         it(`fires '${name}'`, () => {
-          const spy = jest.fn()
+          const spy = vi.fn()
           ifv.on(name as FireableEvent, spy)
           ifv.focus()
-          expect(spy).toBeCalled()
+          expect(spy).toHaveBeenCalled()
           expect(spy).toHaveBeenCalledTimes(1)
         })
       })
@@ -133,7 +136,7 @@ describe('IfVisible', () => {
     describe('wakeup', () => {
       beforeEach(() => {
         expectActive(ifv)
-        jest.advanceTimersByTime(30000)
+        vi.advanceTimersByTime(30000)
         expectIdle(ifv)
       })
 
@@ -154,10 +157,10 @@ describe('IfVisible', () => {
       })
 
       it(`fires 'wakeup'`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.on('wakeup', spy)
         ifv.wakeup()
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(1)
       })
     })
@@ -190,38 +193,38 @@ describe('IfVisible', () => {
 
     describe('onEvery', () => {
       it(`fires callback repeatedly when 'active'`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.onEvery(0.5, spy)
         expectActive(ifv)
         expect(spy).not.toHaveBeenCalled()
 
         // 1 total (of 3)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(2)
 
         // 2 total (of 3)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
         expect(spy).toHaveBeenCalledTimes(4)
 
         // 3 total (of 3)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
         expect(spy).toHaveBeenCalledTimes(6)
       })
 
       it(`does not continue to fire callback when 'hidden' after blur()`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.onEvery(0.5, spy)
         expectActive(ifv)
         expect(spy).not.toHaveBeenCalled()
 
         // 1 total (of 3)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(2)
 
         // blur it and check
@@ -235,15 +238,15 @@ describe('IfVisible', () => {
       })
 
       it(`does not continue to fire callback when 'idle' after idle()`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.onEvery(0.5, spy)
         expectActive(ifv)
         expect(spy).not.toHaveBeenCalled()
 
         // 1 total (of 3)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(2)
 
         // idle it and check
@@ -257,31 +260,31 @@ describe('IfVisible', () => {
       })
 
       it(`stops firing when 'idle' after timeout`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.onEvery(1, spy)
         expectActive(ifv)
         expect(spy).not.toHaveBeenCalled()
 
         // 1 total (of 60)
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
-        expect(spy).toBeCalled()
+        expect(spy).toHaveBeenCalled()
         expect(spy).toHaveBeenCalledTimes(1)
 
         // 60 total (of 60) and 30s default timeout
-        jest.advanceTimersByTime(59000)
+        vi.advanceTimersByTime(59000)
         expectIdle(ifv)
         expect(spy).toHaveBeenCalledTimes(30 - 1) // it's always -1, not sure why based on original code, but not a big deal to me at least
       })
 
       it(`restarts firing when waking after event`, () => {
-        const spy = jest.fn()
+        const spy = vi.fn()
         ifv.onEvery(1, spy)
         expectActive(ifv)
         expect(spy).not.toHaveBeenCalled()
 
         // 1 total (of 60)
-        jest.advanceTimersByTime(30000)
+        vi.advanceTimersByTime(30000)
         expectIdle(ifv)
         expect(spy).toHaveBeenCalledTimes(30 - 1) // it's always -1, not sure why based on original code, but not a big deal to me at least
 
@@ -294,7 +297,7 @@ describe('IfVisible', () => {
         expect(spy).toHaveBeenCalledTimes(30 - 1) // same as above, we haven't moved time.
 
         // see if it reinitiates
-        jest.advanceTimersByTime(1000)
+        vi.advanceTimersByTime(1000)
         expectActive(ifv)
         expect(spy).toHaveBeenCalledTimes(30)
       })
@@ -304,7 +307,7 @@ describe('IfVisible', () => {
   describe('DOM events', () => {
     beforeEach(() => {
       expectActive(ifv)
-      jest.advanceTimersByTime(30000)
+      vi.advanceTimersByTime(30000)
       expectIdle(ifv)
     })
 

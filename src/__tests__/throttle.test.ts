@@ -1,48 +1,50 @@
 /* eslint-disable @typescript-eslint/no-unsafe-return */
-import { throttle } from '../throttle'
+import { vi } from 'vitest'
+
+import { throttle } from '../throttle.js'
 
 describe('throttle()', () => {
   beforeEach(() => {
-    jest.useFakeTimers().setSystemTime(new Date('2022-06-16'))
+    vi.useFakeTimers().setSystemTime(new Date('2022-06-16'))
   })
 
   afterEach(() => {
-    jest.useRealTimers()
+    vi.useRealTimers()
   })
 
   it('imposes limit', () => {
-    const spy = jest.fn()
+    const spy = vi.fn()
     const throttled = throttle(() => spy(), 100)
 
     // (total: 0) throttle call invokes immediately
-    expect(spy).not.toBeCalled()
+    expect(spy).not.toHaveBeenCalled()
     throttled()
-    expect(spy).toBeCalled()
+    expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
 
     // (total: 99) advance but do not reach the limit
-    jest.advanceTimersByTime(99)
+    vi.advanceTimersByTime(99)
     throttled()
     expect(spy).toHaveBeenCalledTimes(1)
 
     // (total: 100) advance reaching the limit/reset
-    jest.advanceTimersByTime(1)
+    vi.advanceTimersByTime(1)
     throttled()
     expect(spy).toHaveBeenCalledTimes(2)
 
     // (total: 199) advance but do not reach the limit (second time)
-    jest.advanceTimersByTime(99)
+    vi.advanceTimersByTime(99)
     throttled()
     expect(spy).toHaveBeenCalledTimes(2)
 
     // (total: 200) advance reaching the limit/reset (second time)
-    jest.advanceTimersByTime(1)
+    vi.advanceTimersByTime(1)
     throttled()
     expect(spy).toHaveBeenCalledTimes(3)
   })
 
   it('returns last value when callback only invoked once', () => {
-    const spy = jest.fn()
+    const spy = vi.fn()
     const throttled = throttle((value: number) => {
       spy()
       return value + 1
@@ -52,13 +54,13 @@ describe('throttle()', () => {
 
     // --
     // (total: 0) throttle call invokes immediately
-    expect(spy).not.toBeCalled()
+    expect(spy).not.toHaveBeenCalled()
     i = throttled(i)
-    expect(spy).toBeCalled()
+    expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
 
     // (total: 99) advance but do not reach the limit
-    jest.advanceTimersByTime(99)
+    vi.advanceTimersByTime(99)
     i = throttled(i)
     expect(spy).toHaveBeenCalledTimes(1)
     // --
@@ -67,7 +69,7 @@ describe('throttle()', () => {
   })
 
   it('returns last value when callback invoked multiple times', () => {
-    const spy = jest.fn()
+    const spy = vi.fn()
     const throttled = throttle((value: number) => {
       spy()
       return value + 1
@@ -77,15 +79,15 @@ describe('throttle()', () => {
 
     // --
     // (total: 0) throttle call invokes immediately
-    expect(spy).not.toBeCalled()
+    expect(spy).not.toHaveBeenCalled()
     i = throttled(i)
     i = throttled(i)
     i = throttled(i)
-    expect(spy).toBeCalled()
+    expect(spy).toHaveBeenCalled()
     expect(spy).toHaveBeenCalledTimes(1)
 
     // (total: 100) advance but do not reach the limit
-    jest.advanceTimersByTime(100)
+    vi.advanceTimersByTime(100)
     i = throttled(i)
     i = throttled(i)
     i = throttled(i)
