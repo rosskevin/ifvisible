@@ -1,3 +1,15 @@
+# v3.3.6 (Tue Jul 29 2025)
+
+#### 🐛 Bug Fix
+
+- update deps, replace jest with vitest [#21](https://github.com/rosskevin/ifvisible/pull/21) ([@rosskevin](https://github.com/rosskevin))
+
+#### Authors: 1
+
+- Kevin Ross ([@rosskevin](https://github.com/rosskevin))
+
+---
+
 # v3.3.5 (Wed Sep 04 2024)
 
 :tada: This release contains work from a new contributor! :tada:
